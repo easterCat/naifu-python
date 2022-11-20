@@ -2,6 +2,11 @@ from flask import render_template
 from . import api
 
 
+@api.route('/')
+def root():
+    return 'hello world!'
+
+
 @api.route('/index')
 def index():
     return render_template('login.html')
