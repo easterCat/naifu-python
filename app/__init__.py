@@ -1,33 +1,27 @@
 from flask import Flask
 from flask_cors import CORS
-# from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from config import config
+
+db = SQLAlchemy()
 
 
-def create_app():
+def create_app(config_name):
     app = Flask(__name__)
+    app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
 
     # 跨域
     CORS(app)
-
     # 数据库
-    #
-    # HOMENAME = "localhost"
-    # PORT = 3306
-    # USERNAME = 'root'
-    # PASSWORD = '123456789'
-    # DATABASE = 'novalai'
-    # app.config[
-    #     'SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{USERNAME}:{PASSWORD}@{HOMENAME}:{PORT}/{DATABASE}?charset=utf8"
-    # db = SQLAlchemy(app)
-    #
-    # with app.app_context():
-    #     with db.engine.connect() as conn:
-    #         rs = conn.execute("select 1")
-    #         print(rs.fetchone())
+    db.init_app(app)
+
+    # 主程序注入
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
 
     # 路由注入
     from .api import api as api_blueprint
-
-    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blueprint(api_blueprint, url_prefix='/stable/api')
 
     return app
