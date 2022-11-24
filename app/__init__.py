@@ -22,6 +22,6 @@ def create_app(config_name):
 
     # 路由注入
     from .api import api as api_blueprint
-    app.register_blueprint(api_blueprint, url_prefix='/stable/api')
+    app.register_blueprint(api_blueprint, url_prefix='/api')
 
     return app

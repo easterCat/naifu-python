@@ -18,16 +18,34 @@ async def translate():
         if translate_type == '1':
             print('英转中')
             translate_text: str = (await g.translate(text, 'zh-cn')).strip()
+            return jsonify({
+                'msg': 'success',
+                'code': 200,
+                'data': {
+                    'text': text,
+                    'type': translate_type,
+                    'translateText': translate_text,
+                }
+            })
         if translate_type == '2':
             print('中转英')
             translate_text: str = (await g.translate(text, 'en')).strip()
+            return jsonify({
+                'msg': 'success',
+                'code': 200,
+                'data': {
+                    'text': text,
+                    'type': translate_type,
+                    'translateText': translate_text,
+                }
+            })
 
         return jsonify({
-            'msg': 'success',
-            'code': 200,
+            'msg': 'error',
+            'code': 400,
             'data': {
-                'text': text,
-                'type': translate_type,
-                'translateText': translate_text,
+                'text': '',
+                'type': '',
+                'translateText': '',
             }
         })
