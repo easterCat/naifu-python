@@ -17,10 +17,10 @@ async def translate():
         g = AsyncTranslator()
         if translate_type == '1':
             print('英转中')
-            translate_text = await g.translate(text, 'zh-cn')
+            translate_text: str = (await g.translate(text, 'zh-cn')).strip()
         if translate_type == '2':
             print('中转英')
-            translate_text = await g.translate(text, 'en')
+            translate_text: str = (await g.translate(text, 'en')).strip()
 
         return jsonify({
             'msg': 'success',
