@@ -1,8 +1,16 @@
 import json
 import os
+import requests
+
+from flask import render_template
 from . import api
 from app import db
 from app.models import Template, Category, Tag, Link
+
+
+@api.route("/database")
+def database_home():
+    return render_template('database.html')
 
 
 @api.route("/create_table")
@@ -20,61 +28,62 @@ def insert_data():
 
 @api.route("/init_template")
 def init_template():
-    path = os.path.abspath('app/static/json/templates.json')
-    print(path)
-    with open(path) as f:
-        json_list = json.load(f)
-        for item in json_list:
-            temp = Template(name=item['name'], prompt=item['prompt'], n_prompt=item['nprompt'], step=item['step'],
-                            scale=item['scale'], author=item['author'], preview=item['preview'])
-            db.session.add(temp)
-            db.session.commit()
-            print(item)
-        return json_list, 200
+    json_list = request_json('https://raw.githubusercontent.com/easterCat/nuxt-utils-assets/main/json/templates.json')
+    for item in json_list:
+        temp = Template(name=item['name'], prompt=item['prompt'], n_prompt=item['nprompt'], step=item['step'],
+                        scale=item['scale'], author=item['author'], preview=item['preview'])
+        db.session.add(temp)
+        db.session.commit()
+        print(item)
+    return json_list, 200
 
 
 @api.route("/init_category")
 def init_category():
-    path = os.path.abspath('app/static/json/tags.json')
-    print(path)
-    with open(path) as f:
-        json_list = json.load(f)
-        json_class = json_list['class']
-        for item in json_class:
-            cate = Category(name=item['name'])
-            db.session.add(cate)
-            db.session.commit()
-        return json_class, 200
+    json_list = request_json('https://raw.githubusercontent.com/easterCat/nuxt-utils-assets/main/json/tags.json')
+    json_class = json_list['class']
+    total = 0
+    for item in json_class:
+        total = total + 1
+        cate = Category(name=item['name'])
+        db.session.add(cate)
+        db.session.commit()
+    return '初始化category成功,共计' + str(total) + '条', 200
 
 
 @api.route("/init_tag")
 def init_tag():
-    path = os.path.abspath('app/static/json/tags.json')
-    print(path)
-    with open(path) as f:
-        json_list = json.load(f)
-        json_class = json_list['class']
-        total = 0
-        for item in json_class:
-            json_datas = item['data']
-            for data in json_datas:
-                total = total + 1
-                cate = Tag(zh=data['zh'], en=data['en'], category=item['name'])
-                db.session.add(cate)
-                db.session.commit()
-        return '初始化tag成功,共计' + str(total) + '条', 200
+    json_list = request_json('https://raw.githubusercontent.com/easterCat/nuxt-utils-assets/main/json/tags.json')
+    json_class = json_list['class']
+    total = 0
+    for item in json_class:
+        json_datas = item['data']
+        for data in json_datas:
+            total = total + 1
+            cate = Tag(zh=data['zh'], en=data['en'], category=item['name'])
+            db.session.add(cate)
+            db.session.commit()
+    return '初始化tag成功,共计' + str(total) + '条', 200
 
 
 @api.route("/init_link")
 def init_link():
-    path = os.path.abspath('app/static/json/links.json')
-    print(path)
-    with open(path) as f:
-        json_list = json.load(f)
-        total = 0
-        for item in json_list:
+    json_list = request_json('https://raw.githubusercontent.com/easterCat/nuxt-utils-assets/main/json/links.json')
+    total = 0
+    repeat_total = 0
+    for item in json_list:
+        find_count = Link.query.filter(Link.name == item['name']).count()
+        if find_count > 0:
+            repeat_total = repeat_total + 1
+        else:
             total = total + 1
             cate = Link(name=item['name'], href=item['href'], link_type=item['type'])
             db.session.add(cate)
             db.session.commit()
-        return '初始化link成功,共计' + str(total) + '条', 200
+    return '初始化link成功,插入' + str(total) + '条' + ',重复' + str(repeat_total) + '条', 200
+
+
+def request_json(url):
+    res = requests.get(url)
+    res_list = json.loads(res.text)
+    return res_list

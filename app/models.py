@@ -71,7 +71,18 @@ class Link(db.Model):
     hot = db.Column(db.Boolean())
 
     def __init__(self, name, href, link_type, hot=False):
+        super(Link, self).__init__()
         self.name = name
         self.href = href
         self.link_type = link_type
         self.hot = hot
+
+    def to_json(self):
+        json_data = {
+            'id': self.id,
+            'href': self.href,
+            'name': self.name,
+            'link_type': self.link_type,
+            'hot': self.hot,
+        }
+        return json_data

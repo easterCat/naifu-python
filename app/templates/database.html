@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-<table border="1">
-    {% for key, value in result.items() %}
-    <tr>
-        <th>{{ key }}</th>
-        <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div>
+    <ul>
+        <li style="line-height:30px;">
+            <a href="http://localhost:5000/api/create_table">创建表</a>
+        </li>
+        <li style="line-height:30px;">
+            <a>测试数据</a>
+        </li>
+        <li style="line-height:30px;">
+            <a href="http://localhost:5000/api/init_template">初始化模版</a>
+        </li>
+        <li style="line-height:30px;">
+            <a href="http://localhost:5000/api/init_category">初始化分类</a>
+        </li>
+        <li style="line-height:30px;">
+            <a href="http://localhost:5000/api/init_tag">初始化标签</a>
+        </li>
+        <li style="line-height:30px;">
+            <a href="http://localhost:5000/api/init_link">初始化链接</a>
+        </li>
+    </ul>
+</>
