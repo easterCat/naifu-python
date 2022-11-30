@@ -1,14 +1,14 @@
 import json
-import os
 import requests
 
 from flask import render_template
 from . import api
 from app import db
 from app.models import Template, Category, Tag, Link
+import pandas as pd
 
 
-@api.route("/database")
+@api.route("/db")
 def database_home():
     return render_template('database.html')
 
@@ -36,6 +36,31 @@ def init_template():
         db.session.commit()
         print(item)
     return json_list, 200
+
+
+@api.route("/init_template_more")
+def init_template_more():
+    total = 0
+    nums = [5, 6, 7, 8, 9]
+
+    for num in nums:
+        try:
+            csv_path = 'app/static/csv/temp' + str(num) + '.csv'
+            csv_data9 = pd.read_csv(csv_path)
+            for index, item in csv_data9.iterrows():
+                print(item['author'])
+                temp = Template(name=item['name'], author=item['author'], preview=item['preview'],
+                                prompt=item['prompt'],
+                                n_prompt=item['n_prompt'], step=item['step'], sampler=item['sampler'],
+                                scale=item['scale'],
+                                seed=item['seed'], skip=item['skip'], size=item['size'], model=item['model'],
+                                path=item['path'], )
+                db.session.add(temp)
+                db.session.commit()
+                total = total + 1
+        except Exception as e:
+            print('插入数据错误 ==> ', e)
+    return 'success,总计' + str(total) + '条', 200
 
 
 @api.route("/init_category")

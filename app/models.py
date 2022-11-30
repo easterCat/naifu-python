@@ -7,25 +7,73 @@ class Template(db.Model):
     __tablename__ = 'template'
     id = db.Column('template_id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(120), nullable=False)
+    author = db.Column(db.String(120))
+    preview = db.Column(db.Text(300))
     prompt = db.Column(db.Text(3000), nullable=False)
-    n_prompt = db.Column(db.Text(3000), )
-    step = db.Column(db.String(50), )
-    scale = db.Column(db.String(50))
-    author = db.Column(db.String(50))
-    preview = db.Column(db.String(150))
+    prompt_zh = db.Column(db.Text(3000))
+    n_prompt = db.Column(db.Text(3000))
+    n_prompt_zh = db.Column(db.Text(3000))
+    step = db.Column(db.String(60))
+    sampler = db.Column(db.String(80))
+    scale = db.Column(db.String(60))
+    seed = db.Column(db.String(60))
+    skip = db.Column(db.String(60))
+    size = db.Column(db.String(60))
+    model = db.Column(db.String(80))
+    path = db.Column(db.Text(300))
     desc = db.Column(db.String(150))
-    category = db.Column(db.String(100))
+    like = db.Column(db.Integer)
+    like_address = db.Column(db.Text(3000))
+    category = db.Column(db.String(80))
 
-    def __init__(self, name, prompt, n_prompt='', step='', scale='', author='', preview='', desc='', category=''):
+    def __init__(self, name, prompt, author='', preview='', prompt_zh='', n_prompt='', n_prompt_zh='', step='',
+                 sampler='',
+                 scale='', desc='', seed='', skip='', size='', model='', path='', like=0, like_address='',
+                 category=''):
         self.name = name
-        self.prompt = prompt
-        self.n_prompt = n_prompt
-        self.step = step
-        self.scale = scale
         self.author = author
         self.preview = preview
+        self.prompt = prompt
+        self.prompt_zh = prompt_zh
+        self.n_prompt = n_prompt
+        self.n_prompt_zh = n_prompt_zh
+        self.step = step
+        self.sampler = sampler
+        self.seed = seed
+        self.scale = scale
+        self.skip = skip
+        self.size = size
+        self.model = model
+        self.path = path
+        self.like = like
+        self.like_address = like_address
         self.desc = desc
         self.category = category
+
+    def to_json(self):
+        json_data = {
+            'id': self.id,
+            'name': self.name,
+            'author': self.author,
+            'preview': self.preview,
+            'prompt': self.prompt,
+            'prompt_zh': self.prompt_zh,
+            'n_prompt': self.n_prompt,
+            'n_prompt_zh': self.n_prompt_zh,
+            'step': self.step,
+            'sampler': self.sampler,
+            'seed': self.seed,
+            'scale': self.scale,
+            'skip': self.skip,
+            'size': self.size,
+            'model': self.model,
+            'path': self.path,
+            'like': self.like,
+            'like_address': self.like_address,
+            'desc': self.desc,
+            'category': self.category,
+        }
+        return json_data
 
 
 class Category(db.Model):

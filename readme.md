@@ -2,6 +2,28 @@
 
 - python 3.9.5
 
+## template schema
+
+- name
+- author
+- preview
+- prompt
+- prompt_zh
+- n_prompt
+- n_prompt_zh
+- step
+- sampler
+- scale
+- seed
+- skip
+- size
+- model
+- path
+- desc
+- like
+- like_address
+- category
+
 ## doc
 
 - [w3cschool Flask 概述](https://www.w3cschool.cn/flask/flask_overview.html)
