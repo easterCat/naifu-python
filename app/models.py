@@ -54,7 +54,7 @@ class Template(db.Model):
         server = 'http://www.ptg.life/static/'
         # server = 'http://172.18.234.34:5000/static/'
         if 'original_i2i' in self.preview:
-            minify_preview = self.preview.replace('https://www.ptsearch.info/media/article/original/',
+            minify_preview = self.preview.replace('https://www.ptsearch.info/media/article/original_i2i/',
                                                   server + 'media/article/min_original_i2i/')
         else:
             minify_preview = self.preview.replace('https://www.ptsearch.info/media/article/original/',
