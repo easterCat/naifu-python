@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-api = Blueprint('api', __name__, static_folder='static')
+api = Blueprint('api', __name__)
 
-from app.api import translate, database, link, reptile,template
+from app.api import translate, database, link, reptile, template

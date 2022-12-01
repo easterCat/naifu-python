@@ -51,11 +51,28 @@ class Template(db.Model):
         self.category = category
 
     def to_json(self):
+        server = 'http://www.ptg.life/static/'
+        # server = 'http://172.18.234.34:5000/static/'
+        if 'original_i2i' in self.preview:
+            minify_preview = self.preview.replace('https://www.ptsearch.info/media/article/original/',
+                                                  server + 'media/article/min_original_i2i/')
+        else:
+            minify_preview = self.preview.replace('https://www.ptsearch.info/media/article/original/',
+                                                  server + 'media/article/min_original/')
+
+        if 'original_i2i' in self.preview:
+            preview = self.preview.replace('https://www.ptsearch.info/media/article/original_i2i/',
+                                           server + 'media/article/original_i2i/')
+        else:
+            preview = self.preview.replace('https://www.ptsearch.info/media/article/original/',
+                                           server + 'media/article/original/')
+
         json_data = {
             'id': self.id,
             'name': self.name,
             'author': self.author,
-            'preview': self.preview,
+            'preview': preview,
+            'minify_preview': minify_preview,
             'prompt': self.prompt,
             'prompt_zh': self.prompt_zh,
             'n_prompt': self.n_prompt,
@@ -69,7 +86,7 @@ class Template(db.Model):
             'model': self.model,
             'path': self.path,
             'like': self.like,
-            'like_address': self.like_address,
+            # 'like_address': self.like_address,
             'desc': self.desc,
             'category': self.category,
         }

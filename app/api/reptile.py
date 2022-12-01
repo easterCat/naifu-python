@@ -5,29 +5,16 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 import pandas as pd
 import os
+from app.utils import CompressImage
+import time
 
 
-def get_proxy():
-    return requests.get("http://127.0.0.1:5010/get/").json()
-
-
-def delete_proxy(proxy):
-    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
-
-
-def requests_img(img_name, img_url, proxy, headers):
-    r = requests.get(img_url, headers=headers, stream=True, proxies={"http": "http://{}".format(proxy)})
-    if r.status_code == 200:
-        save_path = 'app/static' + img_name
-        find_index = save_path.rfind('/')
-        static_path = save_path[0:find_index]
-        if not os.path.exists(static_path):
-            os.makedirs(static_path)
-        with open(save_path, 'wb') as f:
-            f.write(r.content)
-            print('下载完成' + save_path)
-            return save_path
-    del r
+@api.route("/reptile/compress")
+def reptile_image_compress():
+    total = CompressImage(static_path='app/static/media/article/', dir_name='original',
+                          quality=40).compress_image()
+    return '压缩图片完毕,总计处理图片' + str(total) + '张' + ' - ' + str(
+        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())), 200
 
 
 @api.route("/reptile")
@@ -73,6 +60,29 @@ def reptile():
     delete_proxy(proxy)
     print('爬取出现错误')
     return json.dumps(total_list), 200
+
+
+def get_proxy():
+    return requests.get("http://127.0.0.1:5010/get/").json()
+
+
+def delete_proxy(proxy):
+    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+
+def requests_img(img_name, img_url, proxy, headers):
+    r = requests.get(img_url, headers=headers, stream=True, proxies={"http": "http://{}".format(proxy)})
+    if r.status_code == 200:
+        save_path = 'app/static' + img_name
+        find_index = save_path.rfind('/')
+        static_path = save_path[0:find_index]
+        if not os.path.exists(static_path):
+            os.makedirs(static_path)
+        with open(save_path, 'wb') as f:
+            f.write(r.content)
+            print('下载完成' + save_path)
+            return save_path
+    del r
 
 
 def get_detail(detail_id, headers, proxy):

@@ -3,7 +3,7 @@ from . import api
 import asyncio
 # https://github.com/sevenc-nanashi/async-google-trans-new/tree/main/async_google_trans_new
 from async_google_trans_new import AsyncTranslator
-from app.utils import JsonRep
+from app.utils import JsonResponse
 
 
 @api.route("/translate", methods=['POST'])
@@ -16,7 +16,7 @@ async def translate():
         if translate_type == '1':
             print('英转中')
             translate_text: str = (await g.translate(text, 'zh-cn')).strip()
-            return JsonRep.success({
+            return JsonResponse.success({
                 'text': text,
                 'type': translate_type,
                 'translateText': translate_text,
@@ -24,13 +24,13 @@ async def translate():
         if translate_type == '2':
             print('中转英')
             translate_text: str = (await g.translate(text, 'en')).strip()
-            return JsonRep.success({
+            return JsonResponse.success({
                 'text': text,
                 'type': translate_type,
                 'translateText': translate_text,
             })
 
-        return JsonRep.error({
+        return JsonResponse.error({
             'text': '',
             'type': '',
             'translateText': '',

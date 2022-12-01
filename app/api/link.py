@@ -1,6 +1,6 @@
 from flask import request
 from . import api
-from app.utils import JsonRep
+from app.utils import JsonResponse
 from app.models import Link
 from app import db
 
@@ -14,10 +14,10 @@ async def get_links():
         pagination = Link.query.paginate(page=page_index, per_page=page_size, error_out=False)
         total = Link.query.count()
     except Link.DoesNotExist:
-        return JsonRep.error({})
+        return JsonResponse.error({})
 
     links = pagination.items
-    return JsonRep.success({
+    return JsonResponse.success({
         'list': [link.to_json() for link in links],
         'total': total,
     })
@@ -32,11 +32,11 @@ def add_link():
     add_hot = req['hot']
     find_index = Link.query.filter_by(name=add_name).count()
     if find_index > 0:
-        return JsonRep.error({})
+        return JsonResponse.error({})
     else:
         link_data = Link(name=add_name, href=add_href, link_type=add_type, hot=add_hot)
         add_one_data(link_data)
-        return JsonRep.success({
+        return JsonResponse.success({
             'add': link_data.to_json()
         })
 
@@ -56,7 +56,7 @@ def update_link():
         'hot': update_hot
     })
     db.session.commit()
-    return JsonRep.success({
+    return JsonResponse.success({
         'update': '更新成功'
     })
 
@@ -67,7 +67,7 @@ def delete_link():
     delete_id = req['id']
     delete_data = Link.query.filter_by(id=delete_id).delete()
     db.session.commit()
-    return JsonRep.success({
+    return JsonResponse.success({
         'delete': '删除' + str(delete_id) + '成功'
     })
 

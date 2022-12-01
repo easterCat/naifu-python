@@ -1,0 +1,13 @@
+async_google_trans_new==1.4.6
+beautifulsoup4==4.11.1
+fake_useragent==1.1.0
+Flask==2.2.2
+Flask_Cors==3.0.10
+Flask_Migrate==4.0.0
+flask_sqlalchemy==3.0.2
+pandas==1.5.2
+requests==2.28.1
+SQLAlchemy==1.4.44
+bs4~=0.0.1
+asyncio~=3.4.3
+Pillow~=9.3.0

@@ -1,6 +1,6 @@
 from flask import request, make_response
 from . import api
-from app.utils import JsonRep
+from app.utils import JsonResponse
 from app.models import Template
 from app import db
 
@@ -10,7 +10,7 @@ def set_ip():
     ip = request.remote_addr
     res = make_response('success')
     res.set_cookie('ip', ip)
-    return JsonRep.success({
+    return JsonResponse.success({
         'ip': ip
     })
 
@@ -27,9 +27,9 @@ async def get_templates():
         templates = pagination.items
     except Exception as e:
         print('查询出现异常 ==>', e)
-        return JsonRep.error({})
+        return JsonResponse.error({})
 
-    return JsonRep.success({
+    return JsonResponse.success({
         'list': [i.to_json() for i in templates],
         'total': total,
     })
@@ -44,11 +44,11 @@ def add_template():
     add_hot = req['hot']
     find_index = Template.query.filter_by(name=add_name).count()
     if find_index > 0:
-        return JsonRep.error({})
+        return JsonResponse.error({})
     else:
         template_data = Template(name=add_name)
         add_one_data(template_data)
-        return JsonRep.success({
+        return JsonResponse.success({
             'add': template_data.to_json()
         })
 
@@ -68,7 +68,7 @@ def update_template():
         'hot': update_hot
     })
     db.session.commit()
-    return JsonRep.success({
+    return JsonResponse.success({
         'update': '更新成功'
     })
 
@@ -79,7 +79,7 @@ def delete_template():
     delete_id = req['id']
     delete_data = Template.query.filter_by(id=delete_id).delete()
     db.session.commit()
-    return JsonRep.success({
+    return JsonResponse.success({
         'delete': '删除' + str(delete_id) + '成功'
     })
 
@@ -98,12 +98,26 @@ def like_template_by_id():
             like_data.like_address = like_data.like_address + ',' + ip
         like_data.like = like_data.like + 1
         db.session.commit()
-        return JsonRep.success({
+        return JsonResponse.success({
             'like': '喜爱' + str(like_id) + '成功'
         })
     else:
-        return JsonRep.success({
+        return JsonResponse.success({
             'like': '已添加喜爱'
+        })
+
+
+@api.route("/search_template_by_tag", methods=['GET', 'OPTION'])
+def search_template_by_tag():
+    tag = request.args.get('tag')
+    templates = Template.query.filter(Template.prompt.contains(tag)).all()
+    if templates is not None:
+        return JsonResponse.success({
+            'list': [i.to_json() for i in templates],
+        })
+    else:
+        return JsonResponse.error({
+            'lists': 'null'
         })
 
 
