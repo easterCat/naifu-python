@@ -1,26 +1,76 @@
 <!DOCTYPE html>
-<div>
+<html>
+<head>{{ bootstrap.load_css() }}
+    <style>
+        .db {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+    </style>
+</head>
+
+<body>
+<div class="db">
     <ul>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/create_table">创建表</a>
+        <li style="line-height:30px;margin-bottom:10px;">
+            <div class="btn-group" role="group">
+                <a href="http://localhost:5000/api/create_table" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">创建表</button>
+                </a>
+                <a href="http://localhost:5000/api/init_role" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">初始化角色</button>
+                </a>
+                <a href="http://localhost:5000/api/init_template" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">初始化模版</button>
+                </a>
+                <a href="http://localhost:5000/api/init_category" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">初始化分类</button>
+                </a>
+                <a href="http://localhost:5000/api/init_tag" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">初始化标签</button>
+                </a>
+                <a href="http://localhost:5000/api/init_link" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">初始化链接</button>
+                </a>
+            </div>
         </li>
-        <li style="line-height:30px;">
-            <a>测试数据</a>
+        <li style="line-height:30px;margin-bottom:10px;">
+            <a>
+                <button type="button" class="btn btn-primary btn-lg">测试数据</button>
+            </a>
         </li>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/init_template">初始化模版</a>
+        <li style="line-height:30px;margin-bottom:10px;">
+            <div class="btn-group" role="group">
+                <a href="http://localhost:5000/api/reptile" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">爬取数据</button>
+                </a>
+                <a href="http://localhost:5000/api/reptile/http2" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">爬取数据http2</button>
+                </a>
+                <a href="http://localhost:5000/api/reptile/compress" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">压缩爬取图片</button>
+                </a>
+                <a href="http://localhost:5000/api/reptile/database" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">爬取数据入库</button>
+                </a>
+                <a href="http://localhost:5000/api/reptile/replace_url" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">替换图片路径</button>
+                </a>
+            </div>
         </li>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/init_template_more">初始化模版(韩网合集)</a>
-        </li>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/init_category">初始化分类</a>
-        </li>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/init_tag">初始化标签</a>
-        </li>
-        <li style="line-height:30px;">
-            <a href="http://localhost:5000/api/init_link">初始化链接</a>
+        <li style="line-height:30px;margin-bottom:10px;">
+            <div class="btn-group" role="group">
+                <a href="http://localhost:5000/api/chi_tu" style="margin-right:10px;">
+                    <button type="button" class="btn btn-primary btn-lg">词图模版入库</button>
+                </a>
+            </div>
         </li>
     </ul>
-</>
+</div>
+{{ bootstrap.load_js() }}
+</body>
+
+</html>

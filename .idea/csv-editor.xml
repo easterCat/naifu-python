@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/app/static/csv/temp10.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/app/static/csv/temp11.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/app/static/csv/temp2.csv">
           <value>
             <Attribute>

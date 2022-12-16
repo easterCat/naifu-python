@@ -1,14 +1,14 @@
 # 版本
 
-- python 3.9.5
+使用flask做prompt工具网站的后台
+
+- python 3.8.15
 
 ```commandline
-python -m venv venv
-source ./venv/bin/activate
+python -m venv tag_venv 
+source ./tag_venv/bin/activate
 pip install -r requirements.txt
 ```
-
-> prompt工具网站的后台,代码都公开,刚学的python,写的不好,不要吐槽
 
 ## 创建requirements.txt
 
@@ -25,7 +25,11 @@ pip install pipreqs
 pipreqs ./ --force
 ```
 
-## doc
+## 随笔
+
+
+
+## 学习文档
 
 - [w3cschool Flask 概述](https://www.w3cschool.cn/flask/flask_overview.html)
 - [Flask Web Development github教程实例](https://github.com/miguelgrinberg/flasky)
