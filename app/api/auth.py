@@ -6,36 +6,67 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt,
 )
-from flask_restful import Api, Resource, reqparse
-
+from flask_restx import Namespace, reqparse, Resource
 from app import db, jwt
 from app.model.user import User, RevokedTokenModel
 
-bp = Blueprint("auth", __name__)
-restful_api = Api(bp)
+ns = Namespace("auth", description="账号管理")
 parser = reqparse.RequestParser()
 
 
+@ns.route("/registration")
+@ns.doc(
+    params={
+        "username": "用户名",
+        "password": "密码",
+        "nickname": "",
+        "email": "",
+    }
+)
 class UserRegistration(Resource):
     def post(self):
         parser.add_argument(
-            "username", help="This field cannot be blank", required=True
+            "username",
+            help="用户名 必填",
+            type=str,
+            default="",
+            required=True,
         )
         parser.add_argument(
-            "password", help="This field cannot be blank", required=True
+            "password",
+            help="密码 必填",
+            type=str,
+            default="",
+            required=True,
         )
         parser.add_argument(
-            "nickname", help="This field cannot be blank", required=False
+            "nickname",
+            help="昵称 非必填",
+            type=str,
+            default="",
+            required=False,
         )
-        parser.add_argument("email", help="This field cannot be blank", required=False)
+        parser.add_argument(
+            "email",
+            help="邮箱 非必填",
+            type=str,
+            default="",
+            required=False,
+        )
         data = parser.parse_args()
 
         if User.find_by_username(data["username"]):
-            return {"message": "User {} already exists".format(data["username"])}
+            return {
+                "data": "",
+                "msg": "User {} already exists".format(data["username"]),
+                "code": 200,
+            }
 
         new_user = User(
             username=data["username"],
             password=data["password"],
+            nickname=data["nickname"],
+            email=data["email"],
             password_hash=User.generate_hash(data["password"]),
         )
 
@@ -54,10 +85,12 @@ class UserRegistration(Resource):
                 "msg": "User {} was created".format(data["username"]),
                 "code": 200,
             }
-        except:
+        except Exception as e:
+            print(e)
             return {"data": "", "msg": "Something went wrong", "code": 500}, 500
 
 
+@ns.route("/login")
 class UserLogin(Resource):
     def post(self):
         parser.add_argument(
@@ -92,6 +125,7 @@ class UserLogin(Resource):
             return {"data": "", "msg": "错误令牌", "code": 500}, 500
 
 
+@ns.route("/logout/access")
 class UserLogoutAccess(Resource):
     @jwt_required()
     def post(self):
@@ -104,6 +138,7 @@ class UserLogoutAccess(Resource):
             return {"code": 500, "msg": "出问题了", "data": ""}, 500
 
 
+@ns.route("/logout/refresh")
 class UserLogoutRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
@@ -116,6 +151,7 @@ class UserLogoutRefresh(Resource):
             return {"message": "出问题了"}, 500
 
 
+@ns.route("/token/refresh")
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
@@ -128,6 +164,7 @@ class TokenRefresh(Resource):
         }
 
 
+@ns.route("/users")
 class AllUsers(Resource):
     def get(self):
         return User.return_all()
@@ -155,11 +192,3 @@ def my_unauthorized_token_callback(jwt_header):
 @jwt.revoked_token_loader
 def my_revoked_token_callback(jwt_header, jwt_payload):
     return {"code": 20003, "msg": "令牌已被撤销", "data": ""}, 200
-
-
-restful_api.add_resource(UserRegistration, "/api/auth/registration")
-restful_api.add_resource(UserLogin, "/api/auth/login")
-restful_api.add_resource(UserLogoutAccess, "/api/auth/logout/access")
-restful_api.add_resource(UserLogoutRefresh, "/api/auth/logout/refresh")
-restful_api.add_resource(TokenRefresh, "/api/auth/token/refresh")
-restful_api.add_resource(AllUsers, "/api/auth/users")

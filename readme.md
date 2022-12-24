@@ -25,16 +25,20 @@ pip install pipreqs
 pipreqs ./ --force
 ```
 
-## 随笔
+## 同步数据库变更
 
-
+```commandline
+export FLASK_APP=manage.py
+flask db migrate -m '用户变更'
+flask db upgrade
+```
 
 ## 学习文档
 
 - [w3cschool Flask 概述](https://www.w3cschool.cn/flask/flask_overview.html)
 - [Flask Web Development github教程实例](https://github.com/miguelgrinberg/flasky)
 - [docs Python 教程](https://docs.python.org/zh-cn/3/tutorial/index.html)
-- [runoob Python 基础教程 ](https://www.runoob.com/python/python-tutorial.html)
+- [runoob Python 基础教程](https://www.runoob.com/python/python-tutorial.html)
 - [nginx启动、退出、重启](https://juejin.cn/post/6844903941545656333)
 - [Nginx location 正则](https://www.jianshu.com/p/403bab8fc34d)
 - [Ubuntu安装MySQL8.0](https://www.cnblogs.com/shizhe99/p/14514642.html)

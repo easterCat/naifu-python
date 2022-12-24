@@ -21,12 +21,12 @@ proxy_list = [
 
 
 @api.route("/reptile_hanwang")
-def reptile():
+def reptile_hanwang():
     return reptile_hanwang()
 
 
 @api.route("/reptile_noval")
-def reptile():
+def reptile_noval():
     return reptile_noval()
 
 

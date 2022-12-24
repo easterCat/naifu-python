@@ -1,4 +1,3 @@
-from flasgger import Swagger
 from flask import Flask
 from flask_bootstrap import Bootstrap4
 from flask_cors import CORS
@@ -12,7 +11,7 @@ jwt = JWTManager()
 db = SQLAlchemy()
 bootstrap = Bootstrap4()
 login_manager = LoginManager()
-login_manager.session_protection = 'strong'
+login_manager.session_protection = "strong"
 
 
 def create_app(config_name):
@@ -20,37 +19,33 @@ def create_app(config_name):
 
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # bs样式
     bootstrap.init_app(app)
     # 用户登录管理
     login_manager.init_app(app)
     # 跨域
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
     # 数据库
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
-    # api文档
-    Swagger(app)
     # 数据库迁移
     Migrate(app, db)
     # jwt
     jwt.init_app(app)
+    # blueprint注入
+    inject_bp(app)
 
+    return app
+
+
+def inject_bp(app):
     # 主程序注入
     from .main import main as main_blueprint
+
     app.register_blueprint(main_blueprint)
 
     # 路由注入
     from .api import api as api_blueprint
-    app.register_blueprint(api_blueprint, url_prefix="/api")
 
-    # 数据模型注入
-    # from .model import model as model_blueprint
-    # app.register_blueprint(model_blueprint)
-
-    # restful注入
-    from app.api import auth
-    app.register_blueprint(auth.bp)
-
-    return app
+    app.register_blueprint(api_blueprint)

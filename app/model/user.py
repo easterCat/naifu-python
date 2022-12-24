@@ -1,24 +1,23 @@
 from datetime import datetime
-
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
 from werkzeug.security import check_password_hash
-
 from app import db, login_manager
+from app.model.template import TemplateHan
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(50), nullable=False, index=True)
-    email = db.Column(db.String(64), unique=True, index=True)
+    __tablename__ = "user"
+    id = db.Column("id", db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(128), unique=True, index=True)
     password = db.Column(db.String(64), nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     nickname = db.Column(db.String(50), default="")
     collected = db.Column(db.Text(3000), default="")
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
 
     def __init__(self, *args, **kwargs):
         self.set_args(**kwargs)
@@ -38,21 +37,18 @@ class User(UserMixin, db.Model):
     @classmethod
     def return_all(cls):
         def to_json(x):
-            return {
-                'username': x.username,
-                'password': x.password
-            }
+            return {"username": x.username, "password": x.password}
 
-        return {'users': list(map(lambda x: to_json(x), User.query.all()))}
+        return {"users": list(map(lambda x: to_json(x), User.query.all()))}
 
     @classmethod
     def delete_all(cls):
         try:
             num_rows_deleted = db.session.query(cls).delete()
             db.session.commit()
-            return {'message': '{} row(s) deleted'.format(num_rows_deleted)}
+            return {"message": "{} row(s) deleted".format(num_rows_deleted)}
         except:
-            return {'message': 'Something went wrong'}
+            return {"message": "Something went wrong"}
 
     @staticmethod
     def generate_hash(password):
@@ -67,16 +63,15 @@ class User(UserMixin, db.Model):
         json_data = {
             c.name: getattr(self, c.name)
             for c in self.__table__.columns
-            if c.name != 'password'
+            if c.name != "password"
         }
         return json_data
 
     def row2dict(self):
         d = {}
         for column in self.__table__.columns:
-            if column.name != 'password':
+            if column.name != "password":
                 d[column.name] = str(getattr(self, column.name))
-
         return d
 
     def verify_password(self, password):
@@ -90,14 +85,14 @@ class User(UserMixin, db.Model):
 
 
 class Role(db.Model):
-    __tablename__ = 'role'
-    id = db.Column('id', db.Integer, primary_key=True)
+    __tablename__ = "role"
+    id = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
     role_name = db.Column(db.String(64), unique=True, index=True)
     default = db.Column(db.Boolean, default=False, index=True)
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
-    users = db.relationship('User', backref='role', lazy='dynamic')
+    users = db.relationship("User", backref="role", lazy="dynamic")
 
     def __init__(self, *args, **kwargs):
         self.set_args(**kwargs)
@@ -108,10 +103,7 @@ class Role(db.Model):
                 setattr(self, key, value)
 
     def to_json(self):
-        json_data = {
-            c.name: getattr(self, c.name)
-            for c in self.__table__.columns
-        }
+        json_data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         return json_data
 
     def get_id(self):
@@ -120,7 +112,7 @@ class Role(db.Model):
 
 
 class RevokedTokenModel(db.Model):
-    __tablename__ = 'revoked_tokens'
+    __tablename__ = "revoked_tokens"
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(120))
 
