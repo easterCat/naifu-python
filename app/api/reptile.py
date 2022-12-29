@@ -2,7 +2,7 @@ import json
 import os
 import random
 import time
-
+import ntpath
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -14,9 +14,9 @@ from app.utils import CompressImage
 from . import api
 
 proxy_list = [
-    "148.76.97.250:80",
-    "51.15.242.202:8888",
-    "162.240.75.37:80",
+    "206.222.8.58:80",
+    "178.54.21.203:8081",
+    "120.236.79.139:9002",
 ]
 
 
@@ -103,7 +103,7 @@ def reptile_noval():
 def reptile_hanwang():
     save_csv_path = "app/static/csv/temp11.csv"
     options = create_header_options()
-    total_page = 2
+    total_page = 100
     current_page = 1
     retry_count = 4
     total_list = []
@@ -370,22 +370,6 @@ def create_header_options():
     proxy = random.choice(proxy_list)
     headers = {
         "User-Agent": ua,
-        # "Host": "novel.pyhdxy.top",
-        # "Origin": "novel.pyhdxy.top",
-        # "authority": "novel.pyhdxy.top",
-        # "method": "GET",
-        # "path": "/data",
-        # "scheme": "https",
-        # "accept": "application/json, text/javascript, */*; q=0.01",
-        # "accept-encoding": "gzip, deflate, br",
-        # "accept-language": "zh-CN,zh;q=0.9",
-        # "referer": "https://novel.pyhdxy.top/",
-        # "sec-ch-ua-mobile": "?0",
-        # "sec-ch-ua-platform": "macOS",
-        # "sec-fetch-dest": "empty",
-        # "sec-fetch-mode": "cors",
-        # "sec-fetch-site": "same-origin",
-        # "x-requested-with": "XMLHttpRequest",
     }
     proxies = {"http": "http://{}".format(proxy)}
     print("当前代理的地址 ==> ", proxy)
@@ -441,18 +425,16 @@ def delete_proxy(proxy):
 
 
 def download_images(img_name, img_url, proxies, headers, save_p):
-    print(requests.get)
     r = requests.get(
         img_url,
         headers=headers,
         stream=True,
-        proxies=proxies,
+        proxies={"http": "http://{}".format(proxies)},
     )
-    print(r)
     time.sleep(random.random() * 3)
     if r.status_code == 200:
         # "app/static/media/article/original_20221219/"
-        save_path = save_p + img_name
+        save_path = save_p + ntpath.basename(img_name)
         find_index = save_path.rfind("/")
         static_path = save_path[0:find_index]
         if not os.path.exists(static_path):
@@ -503,7 +485,7 @@ def get_html_detail(detail_id, headers, proxy):
         str(preview),
         proxy,
         headers,
-        'app/static/media/article/noval/"',
+        'app/static/media/article/hanwang_20221229/',
     )
 
     if save_path is not None:
