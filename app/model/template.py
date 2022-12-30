@@ -34,6 +34,8 @@ class BaseTemplate(db.Model):
     file1 = db.Column(db.Text(300), default="")
     file2 = db.Column(db.Text(300), default="")
     file3 = db.Column(db.Text(300), default="")
+    imgbb_url = db.Column(db.Text(300), default="")
+    min_imgbb_url = db.Column(db.Text(300), default="")
 
     def __init__(self, *args, **kwargs):
         self.set_args(**kwargs)

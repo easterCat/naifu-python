@@ -4,6 +4,8 @@
 
 - python 3.8.15
 
+## 创建虚拟环境
+
 ```commandline
 python -m venv tag_venv 
 source ./tag_venv/bin/activate
@@ -22,6 +24,8 @@ pip freeze > requirements.txt .
 
 ```commandline
 pip install pipreqs
+pipreqs --encoding utf-8 ./ --force
+or
 pipreqs ./ --force
 ```
 
@@ -29,7 +33,7 @@ pipreqs ./ --force
 
 ```commandline
 export FLASK_APP=manage.py
-flask db migrate -m '用户变更'
+flask db migrate -m 'change'
 flask db upgrade
 ```
 
@@ -42,3 +46,8 @@ flask db upgrade
 - [nginx启动、退出、重启](https://juejin.cn/post/6844903941545656333)
 - [Nginx location 正则](https://www.jianshu.com/p/403bab8fc34d)
 - [Ubuntu安装MySQL8.0](https://www.cnblogs.com/shizhe99/p/14514642.html)
+- [免费的代理地址](http://free-proxy.cz/en/proxylist/country/JP/all/ping/level2)
+- [计算机相关技术资料整理](https://github.com/EZLippi/practical-programming-books)
+- [DeepDanbooru是动漫风格的女孩图像标签估计系统](https://github.com/KichangKim/DeepDanbooru)
+- [NGINX 配置](https://www.digitalocean.com/community/tools/nginx?global.app.lang=zhCN)
+- [pip install deepdanbooru-onnx](https://github.com/chinoll/deepdanbooru_onnx)

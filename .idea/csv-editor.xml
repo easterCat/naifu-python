@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/app/static/csv/temp13.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/app/static/csv/temp2.csv">
           <value>
             <Attribute>
@@ -80,6 +87,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/app/static/csv/temp99.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\app\static\csv\temp1.csv">
           <value>
             <Attribute>
@@ -88,6 +102,27 @@
           </value>
         </entry>
         <entry key="\app\static\csv\temp11.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\app\static\csv\temp12.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\app\static\csv\temp122.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\app\static\csv\temp13.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

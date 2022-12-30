@@ -3,5 +3,7 @@
 .idea
 __pycache__
 media
+temp
 migrations
 tag_venv
+danbooru

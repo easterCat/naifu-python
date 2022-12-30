@@ -53,6 +53,7 @@ async def get_templates_noval():
         )
         total = TemplateNoval.query.count()
         templates = pagination.items
+        db.session.commit()
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})

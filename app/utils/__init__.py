@@ -1,7 +1,18 @@
+import logging
 import os.path
+import sys
 
+import requests
 from PIL import Image
 from flask import jsonify
+
+
+def progress_bar(current, total):
+    print("\r", end="")
+    print(f"当前已处理: {current} : {total} ", "▋" * (int(current / total * 30)), end="")
+    if current == total:
+        print(" 处理完毕")
+    sys.stdout.flush()
 
 
 class JsonResponse:
@@ -69,3 +80,62 @@ class CompressImage:
             os.makedirs(out_path)
             print(str(out_path) + "压缩图片存储目录创建成功")
         return out_path + image_name
+
+
+class DeepDanbooru:
+    def __init__(self):
+        self.model_url = "https://huggingface.co/chinoll/deepdanbooru/resolve/main/deepdanbooru.onnx"
+        self.tags_url = "https://huggingface.co/chinoll/deepdanbooru/resolve/main/tags.txt"
+        self.base_path = 'app/static/danbooru'
+        self.file_path = self.base_path + '/deepdanbooru.onnx'
+        self.tags_path = self.base_path + '/tags.txt'
+
+    def create_dir(self):
+        if not os.path.exists(self.base_path):
+            logging.warning("danbooru文件夹不存在")
+            os.makedirs(self.base_path)
+
+    def create_file(self):
+        if not os.path.exists(self.file_path):
+            logging.warning("deepdanbooru.onnx文件不存在")
+            with open(self.file_path, 'a+', encoding='utf-8') as f:
+                f.write("")
+
+    def download_file(self):
+        try:
+            url = self.model_url
+            r = requests.get(url, stream=True)
+            print(r)
+            size = 0
+            chunk_size = 1024
+            content_size = int(r.headers['content-length'])
+            if r.status_code == 200:
+                print('开始下载,已下载:{size:.2f} MB'.format(size=content_size / chunk_size / 1024))
+                with open(self.file_path, "wb") as file:
+                    for chunk in r.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            file.write(chunk)
+                            size += len(chunk)
+                            print('\r' + '下载进度:%s%.2f%%' % (
+                                '>' * int(size * 50 / content_size), float(size / content_size * 100)), end=' ')
+        except:
+            logging.error("下载danbooru出现错误")
+
+    def download_tags(self):
+        try:
+            url = self.tags_url
+            r = requests.get(url, stream=True)
+            size = 0
+            chunk_size = 1024
+            content_size = int(r.headers['content-length'])
+            if r.status_code == 200:
+                print('开始下载,已下载:{size:.2f} MB'.format(size=content_size / chunk_size / 1024))
+                with open(self.tags_path, "wb") as file:
+                    for chunk in r.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            file.write(chunk)
+                            size += len(chunk)
+                            print('\r' + '下载进度:%s%.2f%%' % (
+                                '>' * int(size * 50 / content_size), float(size / content_size * 100)), end=' ')
+        except:
+            logging.error("下载danbooru出现错误")

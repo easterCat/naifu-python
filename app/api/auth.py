@@ -166,11 +166,30 @@ class TokenRefresh(Resource):
 
 @ns.route("/users")
 class AllUsers(Resource):
+    @staticmethod
     def get(self):
         return User.return_all()
 
-    def delete(self):
-        return User.delete_all()
+
+@ns.route("/user/info")
+class UserInfo(Resource):
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(username=current_user).first()
+
+        if user is not None:
+            return {
+                "code": 200,
+                "msg": "获取用户成功",
+                "data": {"user": user.row2dict()},
+            }, 200
+        else:
+            return {
+                "code": 500,
+                "msg": "获取用户失败",
+                "data": ""
+            }, 200
 
 
 @jwt.token_in_blocklist_loader

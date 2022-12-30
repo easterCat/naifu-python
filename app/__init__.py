@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask
 from flask_bootstrap import Bootstrap4
 from flask_cors import CORS
@@ -5,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
 from config import config
 
 jwt = JWTManager()
@@ -17,9 +20,13 @@ login_manager.session_protection = "strong"
 def create_app(config_name):
     app = Flask(__name__)
 
+    # config配置
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # 设置普通JWT过期时间
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+    # 设置刷新JWT过期时间
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=10)
 
     # bs样式
     bootstrap.init_app(app)

@@ -1,22 +1,24 @@
 import json
+import ntpath
 import os
 import random
 import time
-import ntpath
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
+from image_depot import image_depot, DepotType
+from loguru import logger
 
 from app import db
-from app.model.template import TemplateHan, TemplateNoval
-from app.utils import CompressImage
+from app.model.template import TemplateHan, TemplateNoval, TemplateChitu
+from app.utils import CompressImage, progress_bar
 from . import api
 
 proxy_list = [
-    "206.222.8.58:80",
-    "178.54.21.203:8081",
-    "120.236.79.139:9002",
+    "51.158.154.173:3128",
+    "116.203.153.165:80",
 ]
 
 
@@ -75,7 +77,7 @@ def reptile_noval():
                         tem_instance = TemplateNoval(
                             name=p,
                             preview="http://www.ptg.life/static/media/article/noval/"
-                            + p,
+                                    + p,
                             path="static/media/article/noval/" + p,
                             step=jss["steps"],
                             prompt=jss["tag"],
@@ -101,9 +103,9 @@ def reptile_noval():
 
 
 def reptile_hanwang():
-    save_csv_path = "app/static/csv/temp11.csv"
+    save_csv_path = "app/static/csv/temp12.csv"
     options = create_header_options()
-    total_page = 100
+    total_page = 75
     current_page = 1
     retry_count = 4
     total_list = []
@@ -183,7 +185,7 @@ def reptile_http2():
 @api.route("/reptile/compress")
 def reptile_image_compress():
     total = CompressImage(
-        static_path="app/static/media/article/", dir_name="noval", quality=30
+        static_path="app/static/media/article/", dir_name="chi_tu", quality=30
     ).compress_image()
     return (
         "压缩图片完毕,总计处理图片"
@@ -219,49 +221,24 @@ def check_template_image():
 
 @api.route("/reptile/database")
 def reptile_database():
-    total = 0
-
-    # 韩网旧数据倒序入库
-    # try:
-    #     tems = Template.query.order_by(Template.id.desc()).all()
-    #     for i in tems:
-    #         item = i.to_json()
-    #         tem_instance = TemplateHan(name=str(item['name']).strip(), author=str(item['author']).strip(),
-    #                                    preview=item['preview'],
-    #                                    prompt=str(item['prompt']).strip(), prompt_zh=str(item['prompt_zh']).strip(),
-    #                                    n_prompt=str(item['n_prompt']).strip(),
-    #                                    n_prompt_zh=str(item['n_prompt_zh']).strip(),
-    #                                    step=str(item['step']).strip(),
-    #                                    sampler=str(item['sampler']).strip(),
-    #                                    scale=str(item['scale']).strip(),
-    #                                    seed=str(item['seed']).strip(), skip=str(item['skip']).strip(),
-    #                                    size=str(item['size']).strip(),
-    #                                    model=str(item['model']).strip(),
-    #                                    path=item['path'], desc=str(item['desc']).strip(), like=item['like'],
-    #                                    like_address=item['like_address'], category=item['category'],
-    #                                    create_time=datetime.now(),
-    #                                    update_time=datetime.now())
-    #         print(item['id'])
-    #         db.session.add(tem_instance)
-    #         db.session.commit()
-    #         total = total + 1
-    # except Exception as e:
-    #     print('插入数据错误 ==> ', e)
-    # return 'success,总计' + str(total) + '条', 200
-
+    current = 0
     # 新数据入库
-    nums = [10]
+    nums = [11]
     for num in nums:
         try:
             csv_path = "app/static/csv/temp" + str(num) + ".csv"
             csv_data = pd.read_csv(csv_path)
             csv_json = csv_data.to_json(orient="records")
             csv_list = json.loads(csv_json)
-            for item in reversed(csv_list):
+            r_csv_list = list(reversed(csv_list))
+            total = len(r_csv_list)
+            for item in r_csv_list:
                 tem_instance = TemplateHan(
                     name=item["name"],
                     author=item["author"],
-                    preview=item["preview"],
+                    preview=item["preview"].replace('https://www.ptsearch.info',
+                                                    'http://www.ptg.life/static').replace(
+                        "/original/", "/hanwang_20221229/"),
                     prompt=item["prompt"] or "",
                     n_prompt=item["n_prompt"],
                     step=item["step"],
@@ -272,41 +249,60 @@ def reptile_database():
                     size=item["size"],
                     model=item["model"],
                     path="/static"
-                    + item["img"].replace("/original/", "/original_20221209/"),
+                         + item["img"].replace("/original/", "/hanwang_20221229/"),
                 )
-                # db.session.add(tem_instance)
-                # db.session.commit()
-                total = total + 1
-                print(total)
+                db.session.add(tem_instance)
+                db.session.commit()
+                current = current + 1
+                progress_bar(current, total)
         except Exception as e:
-            print("插入数据错误 ==> ", e)
-    return "success,总计" + str(total) + "条", 200
+            logger.error('插入数据错误 ==> {error}', error=e)
+            return '插入数据错误', 500
+    logger.success('success,总计 {} 条', current)
+    return "success,总计" + str(current) + "条", 200
+
+
+@api.route("/reptile/desc_database")
+def reptile_desc_database():
+    # 韩网旧数据倒序入库
+    try:
+        tems = Template.query.order_by(Template.id.desc()).all()
+        for i in tems:
+            item = i.to_json()
+            tem_instance = TemplateHan(
+                name=str(item['name']).strip(), author=str(item['author']).strip(),
+                preview=item['preview'],
+                prompt=str(item['prompt']).strip(), prompt_zh=str(item['prompt_zh']).strip(),
+                n_prompt=str(item['n_prompt']).strip(),
+                n_prompt_zh=str(item['n_prompt_zh']).strip(),
+                step=str(item['step']).strip(),
+                sampler=str(item['sampler']).strip(),
+                scale=str(item['scale']).strip(),
+                seed=str(item['seed']).strip(), skip=str(item['skip']).strip(),
+                size=str(item['size']).strip(),
+                model=str(item['model']).strip(),
+                path=item['path'], desc=str(item['desc']).strip(), like=item['like'],
+                like_address=item['like_address'], category=item['category'],
+                create_time=datetime.now(),
+                update_time=datetime.now()
+            )
+            print(item['id'])
+            db.session.add(tem_instance)
+            db.session.commit()
+            total = total + 1
+    except Exception as e:
+        print('插入数据错误 ==> ', e)
+    return 'success,总计' + str(total) + '条', 200
 
 
 @api.route("/reptile/replace_url")
 def reptile_replace_url():
-    # total = 0
-    # templates = TemplateHan.query.all()
-    # for item in templates:
-    #     jj = item.to_json()
-    #     pp = jj['path'].replace('app', '')
-    #     pp2 = jj['preview'].replace('https://www.ptsearch.info', 'http://www.ptg.life/static')
-    #     db.session.query(TemplateHan).filter_by(id=jj['id']).update({
-    #         'path': pp,
-    #         'preview': pp2,
-    #     })
-    #     db.session.commit()
-    #     total = total + 1
-    #     print(total)
-    # return '替换成完毕,总计处理图片' + str(total) + '张' + ' - ' + str(
-    #     time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())), 200
-
     total = 0
     templates = TemplateHan.query.all()
     for item in templates:
         jj = item.to_json()
-        if "/original_20221209/" in jj["path"]:
-            pp2 = jj["preview"].replace("/original/", "/original_20221209/")
+        if "/original/" in jj["preview"]:
+            pp2 = jj["preview"].replace("/original/", "/hanwang_20221229/")
             db.session.query(TemplateHan).filter_by(id=jj["id"]).update(
                 {
                     "preview": pp2,
@@ -323,6 +319,37 @@ def reptile_replace_url():
         + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())),
         200,
     )
+
+
+@api.route("/reptile/db_upload_to_imgbb")
+def db_upload_to_imgbb():
+    total = 0
+    chitu = TemplateChitu.query.all()
+    for item in chitu:
+        jj = item.to_json()
+        jj_path = jj['path']
+        if 'None' not in jj_path:
+            # print(jj_path)
+            # file_path = 'app/' + jj_path
+            # r_file_path = file_path.replace("chi_tu", "min_chi_tu")
+            # img = Image.open(r_file_path)
+            # img.save(r_file_path.replace("jpeg", "png"))
+            # os.remove(r_file_path)
+            # total += 1
+            # print(total)
+
+            d = image_depot(DepotType.NiuPic)
+            if d is None:
+                pass
+            open_path = ('app/' + jj_path).replace("chi_tu", "min_chi_tu")
+            imgbb_url = d.upload_file(open_path)
+            db.session.query(TemplateChitu).filter_by(id=jj['id']).update({
+                "min_imgbb_url": imgbb_url
+            })
+            db.session.commit()
+            total += 1
+            print(total)
+    return 'success', 200
 
 
 def create_http2_header_options():
@@ -485,7 +512,7 @@ def get_html_detail(detail_id, headers, proxy):
         str(preview),
         proxy,
         headers,
-        'app/static/media/article/hanwang_20221229/',
+        'app/static/media/article/hanwang_20230106/',
     )
 
     if save_path is not None:
