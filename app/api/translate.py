@@ -1,6 +1,7 @@
 # https://github.com/sevenc-nanashi/async-google-trans-new/tree/main/async_google_trans_new
 from async_google_trans_new import AsyncTranslator
 from flask import request
+
 from app.utils import JsonResponse
 from . import api
 

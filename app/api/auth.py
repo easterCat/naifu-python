@@ -1,4 +1,3 @@
-from flask import Blueprint
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -7,6 +6,7 @@ from flask_jwt_extended import (
     get_jwt,
 )
 from flask_restx import Namespace, reqparse, Resource
+
 from app import db, jwt
 from app.model.user import User, RevokedTokenModel
 
@@ -87,7 +87,7 @@ class UserRegistration(Resource):
             }
         except Exception as e:
             print(e)
-            return {"data": "", "msg": "Something went wrong", "code": 500}, 500
+            return {"data": "", "msg": "Something went wrong", "code": 500}, 200
 
 
 @ns.route("/login")
@@ -107,7 +107,7 @@ class UserLogin(Resource):
         current_user = User.find_by_username(data["username"])
 
         if not current_user:
-            return {"message": "User {} does't exist".format(data["username"])}
+            return {"data": "", "msg": "用户{}不存在".format(data["username"]), "code": 500}, 200
 
         if User.verify_hash(data["password"], current_user.password_hash):
             access_token = create_access_token(identity=data["username"])
@@ -122,7 +122,7 @@ class UserLogin(Resource):
                 "code": 200,
             }
         else:
-            return {"data": "", "msg": "错误令牌", "code": 500}, 500
+            return {"data": "", "msg": "错误令牌", "code": 500}, 200
 
 
 @ns.route("/logout/access")
@@ -133,9 +133,9 @@ class UserLogoutAccess(Resource):
         try:
             revoked_token = RevokedTokenModel(jti=jti)
             revoked_token.add()
-            return {"code": 200, "msg": "访问令牌已被撤销", "data": ""}
+            return {"code": 200, "msg": "访问令牌已被撤销", "data": ""}, 200
         except:
-            return {"code": 500, "msg": "出问题了", "data": ""}, 500
+            return {"code": 500, "msg": "出问题了", "data": ""}, 200
 
 
 @ns.route("/logout/refresh")
@@ -146,9 +146,9 @@ class UserLogoutRefresh(Resource):
         try:
             revoked_token = RevokedTokenModel(jti=jti)
             revoked_token.add()
-            return {"message": "刷新令牌已被撤销"}
+            return {"code": 200, "msg": "刷新令牌已被撤销", "data": ""}, 200
         except:
-            return {"message": "出问题了"}, 500
+            return {"code": 500, "msg": "出问题了", "data": ""}, 200
 
 
 @ns.route("/token/refresh")
@@ -161,7 +161,7 @@ class TokenRefresh(Resource):
             "code": 200,
             "msg": "access_token已更新",
             "data": {"access_token": access_token},
-        }
+        }, 200
 
 
 @ns.route("/users")

@@ -1,11 +1,13 @@
 import random
 import time
+
 import requests
 from fake_useragent import UserAgent
+from flask_restx import Namespace, reqparse, Resource
 from openpyxl import load_workbook
+
 from app import db
 from app.model.template import TemplateChitu
-from flask_restx import Namespace, reqparse, Resource, marshal_with
 
 ns = Namespace("chitu", description="词图的专属方法")
 parser = reqparse.RequestParser()
