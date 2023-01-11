@@ -46,14 +46,11 @@ class BaseTemplate(db.Model):
                 setattr(self, key, value)
 
     def to_json(self):
+        self.preview = self.preview.replace("http", "https")
         if "/original_i2i/" in self.preview:
-            minify_preview = self.preview.replace(
-                "/original_i2i/", "/min_original_i2i/"
-            )
-        elif "/original_20221209/" in self.preview:
-            minify_preview = self.preview.replace(
-                "/original_20221209/", "/min_original_20221209/"
-            )
+            minify_preview = self.preview.replace("/original_i2i/", "/min_original_i2i/")
+        elif "/hanwang_20221229/" in self.preview:
+            minify_preview = self.preview.replace("/hanwang_20221229/", "/min_hanwang_20221229/")
         elif "/chi_tu/" in self.preview:
             minify_preview = self.preview.replace("/chi_tu/", "/min_chi_tu/")
         else:

@@ -48,3 +48,4 @@ aioflask==0.4.0
 asyncio==3.4.3
 asgiref==3.6.0
 pathlib==1.0.1
+image-depot==0.10.0

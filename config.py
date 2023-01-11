@@ -8,7 +8,12 @@ class Config:
     SECRET_KEY = "11122233"
     JWT_SECRET_KEY = "999888777"
     JWT_BLOCKLIST_TOKEN_CHECKS = ["access", "refresh"]
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    # 设置普通JWT过期时间
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    # 设置刷新JWT过期时间
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=10)
+    SQLALCHEMY_POOL_SIZE = 30
+    SQLALCHEMY_POOL_TIMEOUT = 300
 
     @staticmethod
     def init_app(app):

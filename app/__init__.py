@@ -23,10 +23,9 @@ def create_app(config_name):
     # config配置
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
-    # 设置普通JWT过期时间
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
-    # 设置刷新JWT过期时间
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=10)
+   
+   
+ 
 
     # bs样式
     bootstrap.init_app(app)

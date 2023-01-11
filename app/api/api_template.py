@@ -17,7 +17,7 @@ def set_ip():
 @api.route("/get_templates", methods=["GET", "OPTION"])
 async def get_templates():
     page_index = request.args.get("pageIndex", 1, type=int)
-    page_size = request.args.get("pageSize", 100, type=int)
+    page_size = request.args.get("pageSize", 50, type=int)
     search_tag = request.args.get("searchTag")
 
     query = TemplateHan.query
@@ -30,10 +30,12 @@ async def get_templates():
         )
         total = TemplateHan.query.count()
         templates = pagination.items
+
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
 
+    db.session.commit()
     return JsonResponse.success(
         {
             "list": [i.to_json() for i in templates],
@@ -45,19 +47,18 @@ async def get_templates():
 @api.route("/get_templates_noval", methods=["GET", "OPTION"])
 async def get_templates_noval():
     page_index = request.args.get("pageIndex", 1, type=int)
-    page_size = request.args.get("pageSize", 100, type=int)
+    page_size = request.args.get("pageSize", 50, type=int)
 
     try:
-        pagination = TemplateNoval.query.paginate(
+        pagination = db.session.query(TemplateNoval).paginate(
             page=page_index, per_page=page_size, error_out=False
         )
-        total = TemplateNoval.query.count()
+        total = db.session.query(TemplateNoval).count()
         templates = pagination.items
         db.session.commit()
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
-
     return JsonResponse.success(
         {
             "list": [i.to_json() for i in templates],
@@ -81,6 +82,7 @@ async def get_templates_chitu():
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
 
+    db.session.commit()
     return JsonResponse.success(
         {
             "list": [i.to_json() for i in templates],
@@ -101,7 +103,8 @@ def add_template():
         return JsonResponse.error({})
     else:
         template_data = TemplateHan(name=add_name)
-        add_one_data(template_data)
+        db.session.add(template_data)
+        db.session.commit()
         return JsonResponse.success({"add": template_data.to_json()})
 
 
@@ -151,12 +154,3 @@ def like_template_by_id():
         return JsonResponse.success({"like": "喜爱" + str(like_id) + "成功"})
     else:
         return JsonResponse.success({"like": "已添加喜爱"})
-
-
-def add_one_data(data):
-    try:
-        db.session.add(data)
-        db.session.commit()
-    except Exception as e:
-        print(e)
-        db.session.rollback()

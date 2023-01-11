@@ -8,6 +8,7 @@ from .danbooru import ns as danbooru_ns
 from .link import ns as link_ns
 from .template import ns as template_ns
 from .role import ns as role_ns
+from .draw import ns as draw_ns
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -25,6 +26,7 @@ restful_api.add_namespace(link_ns)
 restful_api.add_namespace(template_ns)
 restful_api.add_namespace(danbooru_ns)
 restful_api.add_namespace(role_ns)
+restful_api.add_namespace(draw_ns)
 
 from . import database, reptile, api_template, translate
 

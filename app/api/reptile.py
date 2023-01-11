@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from image_depot import image_depot, DepotType
 from loguru import logger
-
+from PIL import Image
 from app import db
 from app.model.template import TemplateHan, TemplateNoval, TemplateChitu
 from app.utils import CompressImage, progress_bar
@@ -77,7 +77,7 @@ def reptile_noval():
                         tem_instance = TemplateNoval(
                             name=p,
                             preview="http://www.ptg.life/static/media/article/noval/"
-                                    + p,
+                            + p,
                             path="static/media/article/noval/" + p,
                             step=jss["steps"],
                             prompt=jss["tag"],
@@ -236,9 +236,9 @@ def reptile_database():
                 tem_instance = TemplateHan(
                     name=item["name"],
                     author=item["author"],
-                    preview=item["preview"].replace('https://www.ptsearch.info',
-                                                    'http://www.ptg.life/static').replace(
-                        "/original/", "/hanwang_20221229/"),
+                    preview=item["preview"]
+                    .replace("https://www.ptsearch.info", "http://www.ptg.life/static")
+                    .replace("/original/", "/hanwang_20221229/"),
                     prompt=item["prompt"] or "",
                     n_prompt=item["n_prompt"],
                     step=item["step"],
@@ -249,16 +249,16 @@ def reptile_database():
                     size=item["size"],
                     model=item["model"],
                     path="/static"
-                         + item["img"].replace("/original/", "/hanwang_20221229/"),
+                    + item["img"].replace("/original/", "/hanwang_20221229/"),
                 )
                 db.session.add(tem_instance)
                 db.session.commit()
                 current = current + 1
                 progress_bar(current, total)
         except Exception as e:
-            logger.error('插入数据错误 ==> {error}', error=e)
-            return '插入数据错误', 500
-    logger.success('success,总计 {} 条', current)
+            logger.error("插入数据错误 ==> {error}", error=e)
+            return "插入数据错误", 500
+    logger.success("success,总计 {} 条", current)
     return "success,总计" + str(current) + "条", 200
 
 
@@ -270,29 +270,35 @@ def reptile_desc_database():
         for i in tems:
             item = i.to_json()
             tem_instance = TemplateHan(
-                name=str(item['name']).strip(), author=str(item['author']).strip(),
-                preview=item['preview'],
-                prompt=str(item['prompt']).strip(), prompt_zh=str(item['prompt_zh']).strip(),
-                n_prompt=str(item['n_prompt']).strip(),
-                n_prompt_zh=str(item['n_prompt_zh']).strip(),
-                step=str(item['step']).strip(),
-                sampler=str(item['sampler']).strip(),
-                scale=str(item['scale']).strip(),
-                seed=str(item['seed']).strip(), skip=str(item['skip']).strip(),
-                size=str(item['size']).strip(),
-                model=str(item['model']).strip(),
-                path=item['path'], desc=str(item['desc']).strip(), like=item['like'],
-                like_address=item['like_address'], category=item['category'],
+                name=str(item["name"]).strip(),
+                author=str(item["author"]).strip(),
+                preview=item["preview"],
+                prompt=str(item["prompt"]).strip(),
+                prompt_zh=str(item["prompt_zh"]).strip(),
+                n_prompt=str(item["n_prompt"]).strip(),
+                n_prompt_zh=str(item["n_prompt_zh"]).strip(),
+                step=str(item["step"]).strip(),
+                sampler=str(item["sampler"]).strip(),
+                scale=str(item["scale"]).strip(),
+                seed=str(item["seed"]).strip(),
+                skip=str(item["skip"]).strip(),
+                size=str(item["size"]).strip(),
+                model=str(item["model"]).strip(),
+                path=item["path"],
+                desc=str(item["desc"]).strip(),
+                like=item["like"],
+                like_address=item["like_address"],
+                category=item["category"],
                 create_time=datetime.now(),
-                update_time=datetime.now()
+                update_time=datetime.now(),
             )
-            print(item['id'])
+            print(item["id"])
             db.session.add(tem_instance)
             db.session.commit()
             total = total + 1
     except Exception as e:
-        print('插入数据错误 ==> ', e)
-    return 'success,总计' + str(total) + '条', 200
+        print("插入数据错误 ==> ", e)
+    return "success,总计" + str(total) + "条", 200
 
 
 @api.route("/reptile/replace_url")
@@ -324,32 +330,46 @@ def reptile_replace_url():
 @api.route("/reptile/db_upload_to_imgbb")
 def db_upload_to_imgbb():
     total = 0
-    chitu = TemplateChitu.query.all()
-    for item in chitu:
-        jj = item.to_json()
-        jj_path = jj['path']
-        if 'None' not in jj_path:
-            # print(jj_path)
-            # file_path = 'app/' + jj_path
-            # r_file_path = file_path.replace("chi_tu", "min_chi_tu")
-            # img = Image.open(r_file_path)
-            # img.save(r_file_path.replace("jpeg", "png"))
-            # os.remove(r_file_path)
+    han = TemplateHan.query.all()
+    for item in han:
+        han_json = item.to_json()
+        han_path = han_json["path"]
+        if "/original_20221209/" in han_path:
+            # if "jpeg" in han_path or "jpg" in han_path:
+            #     file_path = "app/" + han_path
+            #     print(file_path)
+            # img = Image.open(file_path)
+            # img.save(file_path.replace("jpg", "png"))
+            # os.remove(file_path)
             # total += 1
             # print(total)
+
+            # if "jpeg" in han_path or "jpg" in han_path:
+            #     print(han_json["id"])
+            #     db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
+            #         {
+            #             "preview": han_json["preview"].replace("jpg", "png"),
+            #             "path": han_json["path"].replace("jpg", "png"),
+            #         }
+            #     )
+            #     db.session.commit()
+            #     print(han_json["preview"].replace("jpg", "png"))
+            #     total += 1
+            #     print(total)
 
             d = image_depot(DepotType.NiuPic)
             if d is None:
                 pass
-            open_path = ('app/' + jj_path).replace("chi_tu", "min_chi_tu")
+            open_path = "app/" + han_path
             imgbb_url = d.upload_file(open_path)
-            db.session.query(TemplateChitu).filter_by(id=jj['id']).update({
-                "min_imgbb_url": imgbb_url
-            })
+            print(han_json["id"])
+            db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
+                {"imgbb_url": imgbb_url}
+            )
             db.session.commit()
             total += 1
             print(total)
-    return 'success', 200
+    return "success", 200
 
 
 def create_http2_header_options():
@@ -512,7 +532,7 @@ def get_html_detail(detail_id, headers, proxy):
         str(preview),
         proxy,
         headers,
-        'app/static/media/article/hanwang_20230106/',
+        "app/static/media/article/hanwang_20230106/",
     )
 
     if save_path is not None:
