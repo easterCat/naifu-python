@@ -10,9 +10,9 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from image_depot import image_depot, DepotType
 from loguru import logger
-from PIL import Image
+
 from app import db
-from app.model.template import TemplateHan, TemplateNoval, TemplateChitu
+from app.model.template import TemplateHan, TemplateNoval
 from app.utils import CompressImage, progress_bar
 from . import api
 
@@ -77,7 +77,7 @@ def reptile_noval():
                         tem_instance = TemplateNoval(
                             name=p,
                             preview="http://www.ptg.life/static/media/article/noval/"
-                            + p,
+                                    + p,
                             path="static/media/article/noval/" + p,
                             step=jss["steps"],
                             prompt=jss["tag"],
@@ -249,7 +249,7 @@ def reptile_database():
                     size=item["size"],
                     model=item["model"],
                     path="/static"
-                    + item["img"].replace("/original/", "/hanwang_20221229/"),
+                         + item["img"].replace("/original/", "/hanwang_20221229/"),
                 )
                 db.session.add(tem_instance)
                 db.session.commit()
@@ -356,19 +356,20 @@ def db_upload_to_imgbb():
             #     print(han_json["preview"].replace("jpg", "png"))
             #     total += 1
             #     print(total)
-
-            d = image_depot(DepotType.NiuPic)
-            if d is None:
-                pass
-            open_path = "app/" + han_path
-            imgbb_url = d.upload_file(open_path)
-            print(han_json["id"])
-            db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
-                {"imgbb_url": imgbb_url}
-            )
-            db.session.commit()
-            total += 1
-            print(total)
+            if han_json['min_imgbb_url'] is None:
+                d = image_depot(DepotType.NiuPic)
+                if d is None:
+                    pass
+                open_path = "app/" + han_path
+                r_open_path = open_path.replace("/original_20221209/", "/min_original_20221209/")
+                imgbb_url = d.upload_file(r_open_path)
+                print(han_json["id"])
+                db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
+                    {"min_imgbb_url": imgbb_url}
+                )
+                db.session.commit()
+                total += 1
+                print(total)
     return "success", 200
 
 

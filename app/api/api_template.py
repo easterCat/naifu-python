@@ -28,14 +28,13 @@ async def get_templates():
         pagination = query.order_by(TemplateHan.id.desc()).paginate(
             page=page_index, per_page=page_size, error_out=False
         )
-        total = TemplateHan.query.count()
+        total = query.count()
         templates = pagination.items
 
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
 
-    db.session.commit()
     return JsonResponse.success(
         {
             "list": [i.to_json() for i in templates],
@@ -48,14 +47,13 @@ async def get_templates():
 async def get_templates_noval():
     page_index = request.args.get("pageIndex", 1, type=int)
     page_size = request.args.get("pageSize", 50, type=int)
-
+    query = TemplateNoval.query
     try:
-        pagination = db.session.query(TemplateNoval).paginate(
+        pagination = query.paginate(
             page=page_index, per_page=page_size, error_out=False
         )
-        total = db.session.query(TemplateNoval).count()
+        total = query.count()
         templates = pagination.items
-        db.session.commit()
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
@@ -71,18 +69,17 @@ async def get_templates_noval():
 async def get_templates_chitu():
     page_index = request.args.get("pageIndex", 1, type=int)
     page_size = request.args.get("pageSize", 100, type=int)
-
+    query = TemplateChitu.query
     try:
-        pagination = TemplateChitu.query.paginate(
+        pagination = query.paginate(
             page=page_index, per_page=page_size, error_out=False
         )
-        total = TemplateChitu.query.count()
+        total = query.count()
         templates = pagination.items
     except Exception as e:
         print("查询出现异常 ==>", e)
         return JsonResponse.error({})
 
-    db.session.commit()
     return JsonResponse.success(
         {
             "list": [i.to_json() for i in templates],

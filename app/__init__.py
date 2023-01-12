@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from flask import Flask
 from flask_bootstrap import Bootstrap4
 from flask_cors import CORS
@@ -11,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import config
 
 jwt = JWTManager()
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={"autoflush": False})
 bootstrap = Bootstrap4()
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
@@ -23,9 +21,6 @@ def create_app(config_name):
     # config配置
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
-   
-   
- 
 
     # bs样式
     bootstrap.init_app(app)
