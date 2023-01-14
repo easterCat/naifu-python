@@ -287,7 +287,6 @@ def reptile_desc_database():
                 path=item["path"],
                 desc=str(item["desc"]).strip(),
                 like=item["like"],
-                like_address=item["like_address"],
                 category=item["category"],
                 create_time=datetime.now(),
                 update_time=datetime.now(),

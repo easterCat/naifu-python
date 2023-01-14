@@ -1,6 +1,7 @@
 import logging
 import os.path
 import sys
+from datetime import date, datetime
 
 import requests
 from PIL import Image
@@ -139,3 +140,12 @@ class DeepDanbooru:
                                 '>' * int(size * 50 / content_size), float(size / content_size * 100)), end=' ')
         except:
             logging.error("下载danbooru出现错误")
+
+
+def format_datetime(o):
+    if isinstance(o, datetime):
+        return o.strftime('%Y-%m-%d %H:%M:%S')
+    elif isinstance(o, date):
+        return o.strftime('%Y-%m-%d')
+    else:
+        return o

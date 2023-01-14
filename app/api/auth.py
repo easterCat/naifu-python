@@ -192,6 +192,27 @@ class UserInfo(Resource):
             }, 200
 
 
+@ns.route("/user/favorite")
+class UserInfo(Resource):
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(username=current_user).first()
+        favorites = user.favorites.all()
+        if user is not None:
+            return {
+                "code": 200,
+                "msg": "获取用户收藏成功",
+                "data": {"favorites": list(favorites)},
+            }, 200
+        else:
+            return {
+                "code": 500,
+                "msg": "获取用户收藏失败",
+                "data": ""
+            }, 200
+
+
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blacklist(jwt_header, decrypted_token):
     jti = decrypted_token["jti"]

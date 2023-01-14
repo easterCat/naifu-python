@@ -24,7 +24,6 @@ class BaseTemplate(db.Model):
     path = db.Column(db.Text(300), default="")
     desc = db.Column(db.Text(300), default="")
     like = db.Column(db.Integer, default=0)
-    like_address = db.Column(db.Text(3000), default="")
     category = db.Column(db.String(80), default="")
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
@@ -46,7 +45,8 @@ class BaseTemplate(db.Model):
                 setattr(self, key, value)
 
     def to_json(self):
-        self.preview = self.preview.replace("http", "https")
+        if 'https://' not in self.preview:
+            self.preview = self.preview.replace("http://", "https://")
         if "/original_i2i/" in self.preview:
             minify_preview = self.preview.replace("/original_i2i/", "/min_original_i2i/")
         elif "/hanwang_20221229/" in self.preview:
@@ -59,7 +59,6 @@ class BaseTemplate(db.Model):
         json_data = {
             c.name: getattr(self, c.name)
             for c in self.__table__.columns
-            if c.name != "like_address"
         }
         json_data["minify_preview"] = minify_preview
         return json_data

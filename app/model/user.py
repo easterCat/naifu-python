@@ -5,6 +5,15 @@ from passlib.hash import pbkdf2_sha256
 from werkzeug.security import check_password_hash
 
 from app import db, login_manager
+from app.model.template import TemplateHan
+from app.utils import format_datetime
+
+collections = db.Table(
+    'collections',
+    db.Column('template_han_id', db.Integer, db.ForeignKey('template_han.id')),
+    db.Column('template_noval_id', db.Integer, db.ForeignKey('template_noval.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+)
 
 
 class User(UserMixin, db.Model):
@@ -19,6 +28,9 @@ class User(UserMixin, db.Model):
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    favorites = db.relationship(
+        "TemplateHan", secondary=collections, backref=db.backref("user", lazy='dynamic'), lazy='dynamic'
+    )
 
     def __init__(self, *args, **kwargs):
         self.set_args(**kwargs)
@@ -30,6 +42,38 @@ class User(UserMixin, db.Model):
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+
+    def to_json(self):
+        json_data = {
+            c.name: getattr(self, c.name)
+            for c in self.__table__.columns
+            if c.name != "password"
+        }
+        return json_data
+
+    def row2dict(self):
+        d = {}
+        for column in self.__table__.columns:
+            if column.name != "password":
+                d[column.name] = str(getattr(self, column.name))
+
+        favorites = []
+        for i in self.favorites.all():
+            i = i.to_json()
+            i['create_time'] = format_datetime(i['create_time'])
+            i['update_time'] = format_datetime(i['update_time'])
+            favorites.append(i)
+        d['favorites'] = favorites
+        return d
+
+    def verify_password(self, password):
+        if self.password_hash is None:
+            return False
+        return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        """获取用户ID"""
+        return self.id
 
     @classmethod
     def find_by_username(cls, username):
@@ -60,29 +104,21 @@ class User(UserMixin, db.Model):
     def verify_hash(password, password_hash):
         return pbkdf2_sha256.verify(str(password), password_hash)
 
-    def to_json(self):
-        json_data = {
-            c.name: getattr(self, c.name)
-            for c in self.__table__.columns
-            if c.name != "password"
-        }
-        return json_data
+    def add_favorite(self, tid):
+        t = TemplateHan.query.get(tid)
+        self.favorites.append(t)
 
-    def row2dict(self):
-        d = {}
-        for column in self.__table__.columns:
-            if column.name != "password":
-                d[column.name] = str(getattr(self, column.name))
-        return d
+    def del_favorite(self, tid):
+        t = TemplateHan.query.get(tid)
+        self.favorites.remove(t)
 
-    def verify_password(self, password):
-        if self.password_hash is None:
+    def is_favorite(self, tid):
+        favorites = self.favorites.all()
+        tem_list = list(filter(lambda tem: tem.id == tid, favorites))
+        if len(tem_list) > 0:
+            return True
+        else:
             return False
-        return check_password_hash(self.password_hash, password)
-
-    def get_id(self):
-        """获取用户ID"""
-        return self.id
 
 
 class Role(db.Model):

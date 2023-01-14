@@ -20,6 +20,7 @@ async def translate():
                 {
                     "text": text,
                     "type": translate_type,
+                    "type_zh": '英转中',
                     "translateText": translate_text,
                 }
             )
@@ -30,6 +31,7 @@ async def translate():
                 {
                     "text": text,
                     "type": translate_type,
+                    "type_zh": '中转英',
                     "translateText": translate_text,
                 }
             )

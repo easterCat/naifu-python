@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from deepdanbooru_onnx import DeepDanbooru
 from flask import request
 from flask_restx import Namespace, reqparse, Resource
+from loguru import logger
 
 ns = Namespace("danbooru", description="deepdanbooru图片分析")
 parser = reqparse.RequestParser()
@@ -39,7 +40,7 @@ class DanbooruResource(Resource):
             upload_file.save(save_path)
             return {"code": 200, "msg": "上传成功", "data": {
                 "file_name": new_file_name,
-                "file_path": '/static/temp/' + new_file_name
+                "file_path": '/temp/' + new_file_name
             }}, 200
         else:
             return {"code": 500, "msg": "不支持当前文件格式", "data": ""}, 200
@@ -102,9 +103,10 @@ class BooruList(Resource):
             max_page = int(round(num / params['pageSize']))
             # 查看页面上有多少图片，以100张图一页的话有多少图
             count = 0
-            print('API访问正常...\n对于tag:' + tags + rate + ',有' + str(num) + '张图，' + str(max_page) + '页')
+            logger.info(
+                url + 'API访问正常...\n对于tag:' + tags + rate + ',有' + str(num) + '张图，' + str(max_page) + '页')
             if num == 0:
-                print('没有找到图片，可能是出错了...')
+                logger.error('没有找到图片，可能是出错了...')
                 return {"code": 500, "msg": "没有找到图片，可能是出错了...", "data": ""}, 200
             else:
                 page = params['pageIndex'] - 1
@@ -124,10 +126,7 @@ class BooruList(Resource):
                             "prompt": link.find("tags").get_text(),
                         })
                         count = count + 1
-                    return {"code": 200, "msg": "解析成功", "data": {
-                        'list': d_list,
-                        'total': num
-                    }}, 200
+                    return {"code": 200, "msg": "解析成功", "data": {'list': d_list, 'total': num}}, 200
             return 'success', 200
         else:
             return {"code": 500, "msg": "gelbooru出现错误", "data": ""}, 200

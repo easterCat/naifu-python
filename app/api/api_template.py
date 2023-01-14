@@ -140,14 +140,14 @@ def like_template_by_id():
     req = request.get_json()
     like_id = req["id"]
     like_data = TemplateHan.query.filter_by(id=like_id).first()
-    address = like_data.like_address
-    if address.find(str(ip)) == -1:
-        if address == "":
-            like_data.like_address = "" + ip
-        else:
-            like_data.like_address = like_data.like_address + "," + ip
-        like_data.like = like_data.like + 1
-        db.session.commit()
-        return JsonResponse.success({"like": "喜爱" + str(like_id) + "成功"})
-    else:
-        return JsonResponse.success({"like": "已添加喜爱"})
+    # address = like_data.like_address
+    # if address.find(str(ip)) == -1:
+    #     if address == "":
+    #         like_data.like_address = "" + ip
+    #     else:
+    #         like_data.like_address = like_data.like_address + "," + ip
+    #     like_data.like = like_data.like + 1
+    #     db.session.commit()
+    #     return JsonResponse.success({"like": "喜爱" + str(like_id) + "成功"})
+    # else:
+    #     return JsonResponse.success({"like": "已添加喜爱"})
