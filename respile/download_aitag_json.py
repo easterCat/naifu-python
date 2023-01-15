@@ -34,8 +34,8 @@ def init():
             save_map['result'] = save_map['result'] + page_result
         for index, item in enumerate(save_map['result']):
             item['index'] = index
-        with open("app/static/json/aitag/"+tag+'.json', 'w', encoding='gb2312') as f:
-            json.dump(save_map, f)
+        with open("app/static/json/aitag/"+tag+'.json', 'w', encoding='utf8') as f:
+            json.dump(save_map, f, ensure_ascii=False)
 
 
 init()
