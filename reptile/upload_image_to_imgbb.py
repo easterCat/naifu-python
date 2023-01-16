@@ -2,15 +2,14 @@ import os
 
 import pandas as pd
 import requests
-from  app.model.template import TemplateChitu
 
 
 def upload_image(dir_name):
     print("当前目录" + dir_name)
     total = 0
-    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "static/media/article/", dir_name))
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/", "static/media/article/", dir_name))
     files = os.listdir(path)  # 得到文件夹下的所有文件名称
-    df = pd.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "static/csv/temp9.csv")))
+    df = pd.read_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/", "static/csv/temp9.csv")))
     df_list = df.values.tolist()
     for file in files:  # 遍历文件夹
         if not os.path.isdir(file):  # 判断是否是文件夹，不是文件夹才打开
@@ -52,7 +51,7 @@ def upload_image(dir_name):
                             "imgbb_url",
                         ],
                     )
-                    df1.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "static/csv/temp99.csv")))
+                    df1.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/", "static/csv/temp99.csv")))
     df1 = pd.DataFrame(
         data=df_list,
         columns=[
@@ -75,7 +74,7 @@ def upload_image(dir_name):
             "imgbb_url",
         ],
     )
-    df1.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../", "static/csv/temp99.csv")))
+    df1.to_csv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/", "static/csv/temp99.csv")))
     print('总计' + str(total))  # 打印结果
 
 

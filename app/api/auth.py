@@ -8,7 +8,8 @@ from flask_jwt_extended import (
 from flask_restx import Namespace, reqparse, Resource
 
 from app import db, jwt
-from app.model.user import User, RevokedTokenModel
+from app.model.token import RevokedTokenModel
+from app.model.user import User
 
 ns = Namespace("auth", description="账号管理")
 parser = reqparse.RequestParser()

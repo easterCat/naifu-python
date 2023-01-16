@@ -127,6 +127,5 @@ class BooruList(Resource):
                         })
                         count = count + 1
                     return {"code": 200, "msg": "解析成功", "data": {'list': d_list, 'total': num}}, 200
-            return 'success', 200
         else:
             return {"code": 500, "msg": "gelbooru出现错误", "data": ""}, 200

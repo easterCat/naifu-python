@@ -4,10 +4,11 @@ import requests
 from flask import render_template
 
 from app import db
+from app.model.category import Category
 from app.model.link import Link
-from app.model.models import Category, Tag
+from app.model.role import Role
+from app.model.tag import Tag
 from app.model.template import TemplateTest, TemplateStable
-from app.model.user import Role
 from . import api
 
 

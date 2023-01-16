@@ -1,15 +1,15 @@
 import jsonschema
-from flask import request
+from flask_restx import Namespace, reqparse, Resource
+
 from app import db
 from app.model.link import Link
 from app.utils import JsonResponse
-from flask_restx import Namespace, reqparse, Resource
 
 ns = Namespace("link", description="收录网站")
 parser = reqparse.RequestParser()
 
 
-@ns.route("/", methods=["GET", "POST", "PUT", "DELETE"])
+@ns.route("/list", methods=["GET", "POST", "PUT", "DELETE"])
 @ns.doc(
     params={
         "pageIndex": "pageIndex 当前第几页",
@@ -17,20 +17,13 @@ parser = reqparse.RequestParser()
     }
 )
 class LinkResource(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         parser.add_argument(
-            "pageIndex",
-            help="default value is 1",
-            required=False,
-            type=int,
-            default=1,
+            "pageIndex", help="default value is 1", required=False, type=int, default=1,
         )
         parser.add_argument(
-            "pageSize",
-            help="default value is 100",
-            required=False,
-            type=int,
-            default=100,
+            "pageSize", help="default value is 100", required=False, type=int, default=100,
         )
         data = parser.parse_args()
         page_index = data["pageIndex"]
@@ -47,9 +40,10 @@ class LinkResource(Resource):
                 "list": [link.to_json() for link in links],
                 "total": total,
             },
-        }
+        }, 200
 
-    def post(self):
+    @staticmethod
+    def post():
         parser.add_argument("name", default="", type=str, required=True)
         parser.add_argument("href", default="", type=str, required=True)
         parser.add_argument("type", default="", type=str, required=True)
@@ -82,7 +76,9 @@ class LinkResource(Resource):
         except jsonschema.ValidationError as e:
             return JsonResponse.error({"msg": e.message})
 
-    def put(self):
+    @staticmethod
+    def put():
+        parser.add_argument("id", type=int, required=True)
         parser.add_argument("name", default="", type=str, required=True)
         parser.add_argument("href", default="", type=str, required=True)
         parser.add_argument("type", default="", type=str, required=True)
@@ -107,22 +103,22 @@ class LinkResource(Resource):
                 }
             )
             db.session.commit()
-            return JsonResponse.success({"update": "更新成功"})
+            return {"code": 200, "msg": "更新id={}成功".format(update_id), "data": ""}, 200
         except jsonschema.ValidationError as e:
-            return JsonResponse.error({"msg": e.message})
+            return {"code": 500, "msg": "更新失败", "data": ""}, 200
 
-
-@ns.route("/<int:id>")
-@ns.doc(params={"id": "删除对应id的收录值"})
-class SingleLink(Resource):
-    def delete(self, id):
-        link = Link.query.filter_by(id=id).first()
-        if link is None:
-            return {"code": 200, "msg": "对应id的网站不存在", "data": ""}
+    @staticmethod
+    def delete():
+        parser.add_argument("id", help='删除的id', type=int, required=True)
+        body = parser.parse_args()
+        link_id = body['id']
+        cur_link = Link.query.filter_by(id=link_id).first()
+        if cur_link is None:
+            return {"code": 500, "msg": "对应id的网站不存在", "data": ""}, 200
         else:
-            db.session.delete(link)
+            db.session.delete(cur_link)
             db.session.commit()
-            return {"code": 200, "msg": "成功删除id={}".format(id), "data": ""}
+            return {"code": 200, "msg": "成功删除id={}".format(link_id), "data": ""}, 200
 
 
 def add_one_data(data):

@@ -6,7 +6,7 @@ from flask_restx import Namespace, reqparse, Resource
 from loguru import logger
 
 from app import db
-from app.model.user import Role
+from app.model.role import Role
 
 ns = Namespace("role", description="角色管理")
 parser = reqparse.RequestParser()
