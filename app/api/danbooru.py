@@ -2,6 +2,7 @@ import logging
 import os
 import time
 import urllib.request
+import uuid
 
 import requests
 from bs4 import BeautifulSoup
@@ -34,8 +35,7 @@ class DanbooruResource(Resource):
         if upload_file and allowed_file(upload_file.filename):
             file_name = upload_file.filename
             ext = file_name.rsplit(".", 1)[1]
-            unix_time = int(time.time())
-            new_file_name = str(unix_time) + '.' + ext
+            new_file_name = uuid.uuid4().hex + '.' + ext
             save_path = temp_path + '/' + new_file_name
             upload_file.save(save_path)
             return {"code": 200, "msg": "上传成功", "data": {

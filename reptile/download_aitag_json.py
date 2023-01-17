@@ -1,7 +1,7 @@
-import requests
 import json
+
+import requests
 from requests.structures import CaseInsensitiveDict
-from string import Template
 
 
 def init():
@@ -22,7 +22,7 @@ def init():
         tem_res = requests.post(url, headers=headers, data=data)
         tem_json = json.loads(tem_res.content)
         page_count = tem_json['page_data']['page_count']
-        for page in range(1, page_count+1):
+        for page in range(1, page_count + 1):
             data2 = json.dumps({
                 'method': 'get_tags_from_sub',
                 'sub': tag,
@@ -34,8 +34,11 @@ def init():
             save_map['result'] = save_map['result'] + page_result
         for index, item in enumerate(save_map['result']):
             item['index'] = index
-        with open("app/static/json/aitag/"+tag+'.json', 'w', encoding='utf8') as f:
+        with open("app/static/json/aitag/" + tag + '.json', 'w', encoding='utf8') as f:
             json.dump(save_map, f, ensure_ascii=False)
+
+    with open("/Users/lilin/Desktop/naifu-python/app/static/json/aitag/菜单.json", 'w', encoding='utf8') as f:
+        json.dump({'result': tag_result}, f, ensure_ascii=False)
 
 
 init()
