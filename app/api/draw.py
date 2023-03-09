@@ -3,24 +3,15 @@ import json
 import requests
 from flask_restx import Namespace, reqparse, Resource
 
-ns = Namespace("draw", description="图片生成")
+ns = Namespace("draw", description="图片生成")/f6a37676c18b43639cac5b58183dd349
 parser = reqparse.RequestParser()
 
 
 @ns.route("/ai")
-@ns.doc(
-    params={
-        'init_images': '',
-        'prompt': '',
-        'seed': '',
-        'negative_prompt': '',
-        'cfg_scale': '',
-        'width': '',
-        'height': '',
-        'denoising_strength': '',
-        'steps': '',
-    }
-)
+@ns.doc(params={
+    'init_images': '', 'prompt': '', 'seed': '', 'negative_prompt': '', 'cfg_scale': '', 'width': '',
+    'height': '', 'denoising_strength': '', 'steps': ''
+})
 class DrawResource(Resource):
     @staticmethod
     def post():
@@ -33,8 +24,9 @@ class DrawResource(Resource):
         parser.add_argument("height", help="height ", type=str, default="768")
         parser.add_argument("denoising_strength", help="denoising_strength ", type=float, default=0.6)
         parser.add_argument("steps", help="steps ", type=int, default=28)
+
         arguments = parser.parse_args()
-        print(arguments)
+
         data = json.dumps({
             'prompt': arguments['prompt'],
             'seed': arguments['seed'],
@@ -50,16 +42,6 @@ class DrawResource(Resource):
         res_json = res.json()
 
         if res.status_code == 200:
-            return {
-                "data": {
-                    "images": res_json['images']
-                },
-                "msg": "生成图片成功",
-                "code": 200,
-            }, 200
+            return {"data": {"images": res_json['images']}, "msg": "生成图片成功", "code": 200, }, 200
         else:
-            return {
-                "data": '',
-                "msg": "生成图片失败",
-                "code": 500,
-            }, 200
+            return {"data": '', "msg": "生成图片失败", "code": 500, }, 200

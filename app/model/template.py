@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from app import db
+from app.utils import format_datetime
 
 
 class BaseTemplate(db.Model):
@@ -30,6 +31,7 @@ class BaseTemplate(db.Model):
     template_from = db.Column(db.String(30), default="")
     key_word = db.Column(db.String(30), default="")
     key_word2 = db.Column(db.String(30), default="")
+    images = db.Column(db.Text(3000), default="")
     file1 = db.Column(db.Text(300), default="")
     file2 = db.Column(db.Text(300), default="")
     file3 = db.Column(db.Text(300), default="")
@@ -60,7 +62,10 @@ class BaseTemplate(db.Model):
             c.name: getattr(self, c.name)
             for c in self.__table__.columns
         }
+
         json_data["minify_preview"] = minify_preview
+        json_data['create_time'] = format_datetime(json_data['create_time'])
+        json_data['update_time'] = format_datetime(json_data['update_time'])
         return json_data
 
 
@@ -102,6 +107,15 @@ class TemplateStable(BaseTemplate):
 
 class TemplateNoval(BaseTemplate):
     __tablename__ = "template_noval"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class TemplatePersonal(BaseTemplate):
+    __tablename__ = 'template_personal'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 

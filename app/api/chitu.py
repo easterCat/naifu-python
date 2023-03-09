@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 from app import db
 from app.model.template import TemplateChitu
 
-ns = Namespace("chitu", description="词图的专属方法")
+ns = Namespace("chitu", description="词图模版方法")
 parser = reqparse.RequestParser()
 
 
@@ -111,7 +111,7 @@ class DownloadChitu(Resource):
 
 
 @ns.route("/replace_url")
-class ReplaceChitu(Resource):
+class replace_chitu(Resource):
     def post(self):
         total = 0
         templates = TemplateChitu.query.all()

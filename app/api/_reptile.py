@@ -6,6 +6,7 @@ import time
 
 import pandas as pd
 import requests
+from PIL import Image
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from image_depot import image_depot, DepotType
@@ -185,7 +186,7 @@ def reptile_http2():
 @api.route("/reptile/compress")
 def reptile_image_compress():
     total = CompressImage(
-        static_path="app/static/media/article/", dir_name="chi_tu", quality=30
+        static_path="app/static/media/article/", dir_name="original", quality=30
     ).compress_image()
     return (
         "压缩图片完毕,总计处理图片"
@@ -329,46 +330,76 @@ def reptile_replace_url():
 @api.route("/reptile/db_upload_to_imgbb")
 def db_upload_to_imgbb():
     total = 0
+    handle_total = 0
     han = TemplateHan.query.all()
+    dir_name = "/original_i2i/"
+    min_dir_name = "/min_original_i2i/"
     for item in han:
         han_json = item.to_json()
         han_path = han_json["path"]
-        if "/original_20221209/" in han_path:
-            # if "jpeg" in han_path or "jpg" in han_path:
-            #     file_path = "app/" + han_path
-            #     print(file_path)
-            # img = Image.open(file_path)
-            # img.save(file_path.replace("jpg", "png"))
-            # os.remove(file_path)
-            # total += 1
-            # print(total)
+        if dir_name in han_path:
+            if ".jpeg" in han_path or ".jpg" in han_path:
+                file_path = "app" + han_path
+                total += 1
 
-            # if "jpeg" in han_path or "jpg" in han_path:
-            #     print(han_json["id"])
-            #     db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
-            #         {
-            #             "preview": han_json["preview"].replace("jpg", "png"),
-            #             "path": han_json["path"].replace("jpg", "png"),
-            #         }
-            #     )
-            #     db.session.commit()
-            #     print(han_json["preview"].replace("jpg", "png"))
-            #     total += 1
-            #     print(total)
+                if os.path.exists(file_path.replace('.jpg', '.png')):
+                    file_path = file_path.replace('.jpg', '.png')
+
+                if os.path.exists(file_path.replace('.jpeg', '.png')):
+                    file_path = file_path.replace('.jpeg', '.png')
+
+                if not os.path.exists(file_path):
+                    continue
+
+                img = Image.open(file_path)
+                if ".jpeg" in file_path:
+                    img.save(file_path.replace("jpeg", "png"))
+                    os.remove(file_path)
+                    db.session.query(TemplateHan).filter_by(id=han_json['id']).update({
+                        "preview": han_json["preview"].replace("jpeg", "png"),
+                        "path": han_json["path"].replace("jpeg", "png"),
+                    })
+                    db.session.commit()
+                if ".jpg" in file_path:
+                    img.save(file_path.replace("jpg", "png"))
+                    os.remove(file_path)
+                    db.session.query(TemplateHan).filter_by(id=han_json['id']).update({
+                        "preview": han_json["preview"].replace("jpg", "png"),
+                        "path": han_json["path"].replace("jpg", "png"),
+                    })
+                    db.session.commit()
+            else:
+                file_path = "app" + han_path
+                total += 1
+                try:
+                    if os.path.exists(file_path.replace("png", "jpeg")):
+                        img = Image.open(file_path.replace("png", "jpeg"))
+                        img.save(file_path)
+                        os.remove(file_path.replace("png", "jpeg"))
+
+                    if os.path.exists(file_path.replace("png", "jpg")):
+                        img = Image.open(file_path.replace("png", "jpg"))
+                        img.save(file_path)
+                        os.remove(file_path.replace("png", "jpg"))
+                except Exception as e:
+                    print(e)
+
             if han_json['min_imgbb_url'] is None:
                 d = image_depot(DepotType.NiuPic)
                 if d is None:
                     pass
                 open_path = "app/" + han_path
-                r_open_path = open_path.replace("/original_20221209/", "/min_original_20221209/")
-                imgbb_url = d.upload_file(r_open_path)
-                print(han_json["id"])
+                min_open_path = open_path.replace(dir_name, min_dir_name)
+                imgbb_url = d.upload_file(open_path)
+                min_imgbb_url = d.upload_file(min_open_path)
                 db.session.query(TemplateHan).filter_by(id=han_json["id"]).update(
-                    {"min_imgbb_url": imgbb_url}
+                    {"min_imgbb_url": min_imgbb_url, "imgbb_url": imgbb_url}
                 )
                 db.session.commit()
-                total += 1
-                print(total)
+                handle_total += 1
+                print('处理第', handle_total)
+    logger.info('total', total)
+    logger.info('handle_total', handle_total)
     return "success", 200
 
 

@@ -14,35 +14,6 @@ def set_ip():
     return JsonResponse.success({"ip": ip})
 
 
-@api.route("/get_templates", methods=["GET", "OPTION"])
-async def get_templates():
-    page_index = request.args.get("pageIndex", 1, type=int)
-    page_size = request.args.get("pageSize", 50, type=int)
-    search_tag = request.args.get("searchTag")
-
-    query = TemplateHan.query
-    if search_tag is not None:
-        query = query.filter(TemplateHan.prompt.contains(search_tag))
-
-    try:
-        pagination = query.order_by(TemplateHan.id.desc()).paginate(
-            page=page_index, per_page=page_size, error_out=False
-        )
-        total = query.count()
-        templates = pagination.items
-
-    except Exception as e:
-        print("查询出现异常 ==>", e)
-        return JsonResponse.error({})
-
-    return JsonResponse.success(
-        {
-            "list": [i.to_json() for i in templates],
-            "total": total,
-        }
-    )
-
-
 @api.route("/get_templates_noval", methods=["GET", "OPTION"])
 async def get_templates_noval():
     page_index = request.args.get("pageIndex", 1, type=int)
@@ -132,22 +103,3 @@ def delete_template():
     delete_data = TemplateHan.query.filter_by(id=delete_id).delete()
     db.session.commit()
     return JsonResponse.success({"delete": "删除" + str(delete_id) + "成功"})
-
-
-@api.route("/like_template_by_id", methods=["POST", "OPTION"])
-def like_template_by_id():
-    ip = request.remote_addr
-    req = request.get_json()
-    like_id = req["id"]
-    like_data = TemplateHan.query.filter_by(id=like_id).first()
-    # address = like_data.like_address
-    # if address.find(str(ip)) == -1:
-    #     if address == "":
-    #         like_data.like_address = "" + ip
-    #     else:
-    #         like_data.like_address = like_data.like_address + "," + ip
-    #     like_data.like = like_data.like + 1
-    #     db.session.commit()
-    #     return JsonResponse.success({"like": "喜爱" + str(like_id) + "成功"})
-    # else:
-    #     return JsonResponse.success({"like": "已添加喜爱"})

@@ -6,12 +6,18 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = "11122233"
+
+    # JWT密钥
     JWT_SECRET_KEY = "999888777"
+    # JWT通行证方式
     JWT_BLOCKLIST_TOKEN_CHECKS = ["access", "refresh"]
     # 设置普通JWT过期时间
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
     # 设置刷新JWT过期时间
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=10)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=14)
+
+    # 如果设置为 True（默认值），Flask-SQLAlchemy 将跟踪对象的修改并发出信号。这需要额外的内存，如果不需要可以禁用。
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_POOL_SIZE = 30
     SQLALCHEMY_POOL_TIMEOUT = 300
 

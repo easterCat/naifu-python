@@ -35,12 +35,12 @@ def create_app(config_name):
     # jwt
     jwt.init_app(app)
     # blueprint注入
-    inject_bp(app)
+    inject_blueprint(app)
 
     return app
 
 
-def inject_bp(app):
+def inject_blueprint(app):
     # 主程序注入
     from .main import main as main_blueprint
 

@@ -1,6 +1,5 @@
 import logging
 import os
-import time
 import urllib.request
 import uuid
 
@@ -93,8 +92,12 @@ class BooruList(Resource):
         url = source + tags + rate
         r = requests.get(url, headers=headers)
         opener = urllib.request.build_opener()
-        opener.addheaders = [('User-Agent',
-                              'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+        opener.addheaders = [
+            (
+                'User-Agent',
+                'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36'
+            )
+        ]
         urllib.request.install_opener(opener)
         d_list = []
         if r.status_code == 200:

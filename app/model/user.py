@@ -5,13 +5,19 @@ from passlib.hash import pbkdf2_sha256
 from werkzeug.security import check_password_hash
 
 from app import db, login_manager
-from app.model.template import TemplateHan
+from app.model.template import TemplateHan, TemplatePersonal
 from app.utils import format_datetime
+from .role import Role
 
 collections = db.Table(
     'collections',
     db.Column('template_han_id', db.Integer, db.ForeignKey('template_han.id')),
-    db.Column('template_noval_id', db.Integer, db.ForeignKey('template_noval.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+personals = db.Table(
+    'personals',
+    db.Column('template_personal_id', db.Integer, db.ForeignKey('template_personal.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
 )
 
@@ -25,11 +31,15 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     nickname = db.Column(db.String(50), default="")
     collected = db.Column(db.Text(3000), default="")
+    avatar = db.Column(db.Text(300), default="")
     create_time = db.Column(db.DateTime, default=datetime.now())
     update_time = db.Column(db.DateTime, default=datetime.now())
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
     favorites = db.relationship(
         "TemplateHan", secondary=collections, backref=db.backref("user", lazy='dynamic'), lazy='dynamic'
+    )
+    templates = db.relationship(
+        "TemplatePersonal", secondary=personals, backref=db.backref("user", lazy='dynamic'), lazy='dynamic'
     )
 
     def __init__(self, *args, **kwargs):
@@ -64,6 +74,14 @@ class User(UserMixin, db.Model):
             i['update_time'] = format_datetime(i['update_time'])
             favorites.append(i)
         d['favorites'] = favorites
+
+        templates = []
+        for t in self.templates.all():
+            t = t.to_json()
+            t['create_time'] = format_datetime(t['create_time'])
+            t['update_time'] = format_datetime(t['update_time'])
+            templates.append(t)
+        d['templates'] = templates
         return d
 
     def verify_password(self, password):
@@ -80,20 +98,20 @@ class User(UserMixin, db.Model):
         return cls.query.filter_by(username=username).first()
 
     @classmethod
-    def return_all(cls):
-        def to_json(x):
-            return {"username": x.username, "password": x.password}
-
-        return {"users": list(map(lambda x: to_json(x), User.query.all()))}
-
-    @classmethod
     def delete_all(cls):
         try:
             num_rows_deleted = db.session.query(cls).delete()
             db.session.commit()
             return {"message": "{} row(s) deleted".format(num_rows_deleted)}
-        except:
+        except Exception as e:
             return {"message": "Something went wrong"}
+
+    @staticmethod
+    def return_all():
+        def to_json(x):
+            return {"username": x.username, "password": x.password}
+
+        return {"users": list(map(lambda x: to_json(x), User.query.all()))}
 
     @staticmethod
     def generate_hash(password):
@@ -119,6 +137,11 @@ class User(UserMixin, db.Model):
             return True
         else:
             return False
+
+    def add_template(self, name):
+        t = TemplatePersonal.query.filter_by(name=name).first()
+        print(t.to_json())
+        self.templates.append(t)
 
 
 @login_manager.user_loader

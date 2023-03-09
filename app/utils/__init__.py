@@ -1,3 +1,4 @@
+import imghdr
 import logging
 import os.path
 import sys
@@ -38,27 +39,30 @@ class CompressImage:
         self.static_path = static_path
         self.dir_name = dir_name
         self.quality = quality
+        self.image_types = {'jpg', 'bmp', 'png', 'jpeg', 'rgb', 'tif', 'webp'}
 
     def compress_image(self):
         all_images = os.listdir(self.static_path + self.dir_name)
         total = 0
         for image_name in all_images:
             old_size = self.get_image_size(self.get_current_image_path(image_name))
-            img = Image.open(self.get_current_image_path(image_name))
-            x, y = img.size
-            if x > 300:
-                min_x = 300
-                min_y = int(y * min_x / x)
-                min_img = img.resize((min_x, min_y), Image.ANTIALIAS)
-                min_img.save(self.get_out_path(image_name), quality=self.quality)
-                new_size = self.get_image_size(self.get_out_path(image_name))
-                total = total + 1
-                print("压缩前大小" + str(old_size) + "-" + "压缩后大小" + str(new_size))
-            else:
-                img.save(self.get_out_path(image_name), quality=80)
-                new_size = self.get_image_size(self.get_out_path(image_name))
-                total = total + 1
-                print("压缩前大小" + str(old_size) + "-" + "压缩后大小" + str(new_size))
+            img_path = self.get_current_image_path(image_name)
+            if imghdr.what(img_path) in self.image_types:
+                img = Image.open(self.get_current_image_path(image_name))
+                x, y = img.size
+                if x > 300:
+                    min_x = 300
+                    min_y = int(y * min_x / x)
+                    min_img = img.resize((min_x, min_y), Image.ANTIALIAS)
+                    min_img.save(self.get_out_path(image_name), quality=self.quality)
+                    new_size = self.get_image_size(self.get_out_path(image_name))
+                    total = total + 1
+                    print("压缩前大小" + str(old_size) + "-" + "压缩后大小" + str(new_size))
+                else:
+                    img.save(self.get_out_path(image_name), quality=80)
+                    new_size = self.get_image_size(self.get_out_path(image_name))
+                    total = total + 1
+                    print("压缩前大小" + str(old_size) + "-" + "压缩后大小" + str(new_size))
         return total
 
     @staticmethod

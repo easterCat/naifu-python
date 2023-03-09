@@ -7,6 +7,20 @@ from app.utils import JsonResponse
 
 ns = Namespace("link", description="收录网站")
 parser = reqparse.RequestParser()
+parser.add_argument(
+    "pageIndex",
+    help="default value is 1",
+    required=False,
+    type=int,
+    default=1,
+)
+parser.add_argument(
+    "pageSize",
+    help="default value is 100",
+    required=False,
+    type=int,
+    default=100,
+)
 
 
 @ns.route("/list", methods=["GET", "POST", "PUT", "DELETE"])
@@ -19,15 +33,8 @@ parser = reqparse.RequestParser()
 class LinkResource(Resource):
     @staticmethod
     def get():
-        parser.add_argument(
-            "pageIndex", help="default value is 1", required=False, type=int, default=1,
-        )
-        parser.add_argument(
-            "pageSize", help="default value is 100", required=False, type=int, default=100,
-        )
-        data = parser.parse_args()
-        page_index = data["pageIndex"]
-        page_size = data["pageSize"]
+        page_index = request.args.get("pageIndex", 1, type=int)
+        page_size = request.args.get("pageSize", 100, type=int)
         pagination = Link.query.paginate(
             page=page_index, per_page=page_size, error_out=False
         )
@@ -109,9 +116,9 @@ class LinkResource(Resource):
 
     @staticmethod
     def delete():
-        parser.add_argument("id", help='删除的id', type=int, required=True)
+        parser.add_argument("id", help="删除的id", type=int, required=True)
         body = parser.parse_args()
-        link_id = body['id']
+        link_id = body["id"]
         cur_link = Link.query.filter_by(id=link_id).first()
         if cur_link is None:
             return {"code": 500, "msg": "对应id的网站不存在", "data": ""}, 200

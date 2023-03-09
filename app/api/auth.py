@@ -1,3 +1,5 @@
+import random
+
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -6,6 +8,7 @@ from flask_jwt_extended import (
     get_jwt,
 )
 from flask_restx import Namespace, reqparse, Resource
+from loguru import logger
 
 from app import db, jwt
 from app.model.token import RevokedTokenModel
@@ -26,34 +29,11 @@ parser = reqparse.RequestParser()
 )
 class UserRegistration(Resource):
     def post(self):
-        parser.add_argument(
-            "username",
-            help="用户名 必填",
-            type=str,
-            default="",
-            required=True,
-        )
-        parser.add_argument(
-            "password",
-            help="密码 必填",
-            type=str,
-            default="",
-            required=True,
-        )
-        parser.add_argument(
-            "nickname",
-            help="昵称 非必填",
-            type=str,
-            default="",
-            required=False,
-        )
-        parser.add_argument(
-            "email",
-            help="邮箱 非必填",
-            type=str,
-            default="",
-            required=False,
-        )
+        parser.add_argument("username", help="用户名 必填", type=str, default="", required=True, )
+        parser.add_argument("password", help="密码 必填", type=str, default="", required=True, )
+        parser.add_argument("nickname", help="昵称 非必填", type=str, default="", required=False, )
+        parser.add_argument("email", help="邮箱 非必填", type=str, default="", required=False, )
+
         data = parser.parse_args()
 
         if User.find_by_username(data["username"]):
@@ -63,12 +43,15 @@ class UserRegistration(Resource):
                 "code": 200,
             }
 
+        avatar = "https://www.thiswaifudoesnotexist.net/example-{}.jpg".format(random.randint(1, 100000))
+
         new_user = User(
             username=data["username"],
             password=data["password"],
             nickname=data["nickname"],
             email=data["email"],
             password_hash=User.generate_hash(data["password"]),
+            avatar=avatar
         )
 
         try:
@@ -87,22 +70,16 @@ class UserRegistration(Resource):
                 "code": 200,
             }
         except Exception as e:
-            print(e)
-            return {"data": "", "msg": "Something went wrong", "code": 500}, 200
+            logger.error(e)
+            return {"code": 500, "msg": "Something went wrong", "data": ""}, 200
 
 
 @ns.route("/login")
 class UserLogin(Resource):
     def post(self):
-        parser.add_argument(
-            "username", help="username field cannot be blank", required=True
-        )
-        parser.add_argument(
-            "password", help="password field cannot be blank", required=True
-        )
-        parser.add_argument(
-            "nickname", help="nickname field cannot be blank", required=False
-        )
+        parser.add_argument("username", help="username field cannot be blank", required=True)
+        parser.add_argument("password", help="password field cannot be blank", required=True)
+        parser.add_argument("nickname", help="nickname field cannot be blank", required=False)
         parser.add_argument("email", help="email field cannot be blank", required=False)
         data = parser.parse_args()
         current_user = User.find_by_username(data["username"])
@@ -118,10 +95,8 @@ class UserLogin(Resource):
                     "user": current_user.row2dict(),
                     "access_token": access_token,
                     "refresh_token": refresh_token,
-                },
-                "msg": "Logged in as {}".format(current_user.username),
-                "code": 200,
-            }
+                }, "msg": "Logged in as {}".format(current_user.username), "code": 200,
+            }, 200
         else:
             return {"data": "", "msg": "错误令牌", "code": 500}, 200
 
@@ -156,62 +131,34 @@ class UserLogoutRefresh(Resource):
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
-        current_user = get_jwt_identity()
-        access_token = create_access_token(identity=current_user)
-        return {
-            "code": 200,
-            "msg": "access_token已更新",
-            "data": {"access_token": access_token},
-        }, 200
-
-
-@ns.route("/users")
-class AllUsers(Resource):
-    @staticmethod
-    def get(self):
-        return User.return_all()
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity)
+        return {"code": 200, "msg": "access_token已更新", "data": {"access_token": access_token}, }, 200
 
 
 @ns.route("/user/info")
 class UserInfo(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        user = User.query.filter_by(username=current_user).first()
-
+        identity = get_jwt_identity()
+        user = User.query.filter_by(username=identity).first()
         if user is not None:
-            return {
-                "code": 200,
-                "msg": "获取用户成功",
-                "data": {"user": user.row2dict()},
-            }, 200
+            return {"code": 200, "msg": "获取用户成功", "data": {"user": user.row2dict()}}, 200
         else:
-            return {
-                "code": 500,
-                "msg": "获取用户失败",
-                "data": ""
-            }, 200
+            return {"code": 500, "msg": "获取用户失败", "data": ""}, 200
 
 
 @ns.route("/user/favorite")
-class UserInfo(Resource):
+class UserFavorite(Resource):
     @jwt_required()
     def get(self):
         current_user = get_jwt_identity()
         user = User.query.filter_by(username=current_user).first()
         favorites = user.favorites.all()
         if user is not None:
-            return {
-                "code": 200,
-                "msg": "获取用户收藏成功",
-                "data": {"favorites": list(favorites)},
-            }, 200
+            return {"code": 200, "msg": "获取用户收藏成功", "data": {"favorites": list(favorites)}, }, 200
         else:
-            return {
-                "code": 500,
-                "msg": "获取用户收藏失败",
-                "data": ""
-            }, 200
+            return {"code": 500, "msg": "获取用户收藏失败", "data": ""}, 200
 
 
 @jwt.token_in_blocklist_loader
@@ -222,7 +169,7 @@ def check_if_token_in_blacklist(jwt_header, decrypted_token):
 
 @jwt.expired_token_loader
 def my_expired_token_callback(jwt_header, jwt_payload):
-    return {"code": 20001, "msg": "access_token已过期", "data": ""}, 200
+    return {"code": 20001, "msg": "token已过期", "data": ""}, 200
 
 
 @jwt.unauthorized_loader
