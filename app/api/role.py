@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_jwt_extended import create_access_token, create_refresh_token
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, reqparse
+
 from app import db
 from app.model.role import Role
 

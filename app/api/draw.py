@@ -3,7 +3,7 @@ import json
 import requests
 from flask_restx import Namespace, reqparse, Resource
 
-ns = Namespace("draw", description="图片生成")/f6a37676c18b43639cac5b58183dd349
+ns = Namespace("draw", description="图片生成")
 parser = reqparse.RequestParser()
 
 

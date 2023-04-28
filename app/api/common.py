@@ -22,8 +22,7 @@ def allowed_file(filename):
 def save_image(img_data):
     if imghdr.what("", img_data) is None:
         return {"code": 500, "msg": "不支持当前文件格式!", "data": ""}, 200
-
-    temp_path = Path(__file__).parent / "static" / "temp"
+    temp_path = Path(__file__).parent.parent / "static" / "temp"
     if not os.path.exists(temp_path):
         os.mkdir(temp_path)
 
@@ -37,6 +36,7 @@ def save_image(img_data):
                 pass
             time.sleep(2)
             imgbb_url = d.upload_file(str(img_url))
+            print(imgbb_url)
             os.remove(img_url)
             if imgbb_url is None:
                 return {"code": 500, "msg": "牛图网上传失败!", "data": imgbb_url}, 200

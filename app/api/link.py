@@ -33,8 +33,12 @@ parser.add_argument(
 class LinkResource(Resource):
     @staticmethod
     def get():
-        page_index = request.args.get("pageIndex", 1, type=int)
-        page_size = request.args.get("pageSize", 100, type=int)
+
+        parser.add_argument("pageIndex", default=1, type=int, required=True)
+        parser.add_argument("pageSize", default=100, type=int, required=True)
+        params = parser.parse_args()
+        page_index = params['pageIndex']
+        page_size = params['pageSize']
         pagination = Link.query.paginate(
             page=page_index, per_page=page_size, error_out=False
         )

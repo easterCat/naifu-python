@@ -17,6 +17,8 @@ login_manager.session_protection = "strong"
 
 def create_app(config_name):
     app = Flask(__name__)
+    # 解决上传文件过大413错误
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 
     # config配置
     app.config.from_object(config[config_name])
