@@ -85,6 +85,7 @@ class BooruList(Resource):
         parser.add_argument("pageSize", help="每页多少个", type=int, default=100)
         parser.add_argument("pageIndex", help="第几页", type=int, default=1)
         params = parser.parse_args()
+        pageSize = params['pageSize']
         tags = params['searchText']
         rate = ' '
         source = r'http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags='
@@ -103,7 +104,7 @@ class BooruList(Resource):
         if r.status_code == 200:
             soup = BeautifulSoup(r.text, "lxml")
             num = int(soup.find('posts')['count'])
-            max_page = int(round(num / params['pageSize']))
+            max_page = int(round(num / pageSize))
             # 查看页面上有多少图片，以100张图一页的话有多少图
             count = 0
             logger.info(

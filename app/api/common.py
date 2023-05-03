@@ -34,7 +34,7 @@ def save_image(img_data):
             d = image_depot(DepotType.NiuPic)
             if d is None:
                 pass
-            time.sleep(2)
+            time.sleep(6)
             imgbb_url = d.upload_file(str(img_url))
             print(imgbb_url)
             os.remove(img_url)
@@ -59,5 +59,6 @@ class UploadImage(Resource):
             res, status = save_image(img_data)
             if status != 200:
                 return res, status
+            print(res)
             upload_images.extend(res["data"])
         return {"code": 200, "msg": "图片上传成功!", "data": upload_images}, 200
