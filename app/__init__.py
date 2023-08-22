@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import config
 
+app = Flask(__name__)
 jwt = JWTManager()
 db = SQLAlchemy(session_options={"autoflush": False})
 bootstrap = Bootstrap4()
@@ -15,8 +16,12 @@ login_manager = LoginManager()
 login_manager.session_protection = "strong"
 
 
+@app.route("/hello")
+def hello():
+    return "Hello, World!"
+
+
 def create_app(config_name):
-    app = Flask(__name__)
     # 解决上传文件过大413错误
     app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 

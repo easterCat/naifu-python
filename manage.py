@@ -19,10 +19,14 @@ def make_shell_context():
     return dict(db=db)
 
 
-if __name__ == "__main__":
+def main():
     if app.config["ENV"] == "production":
         from waitress import serve
 
         serve(app, host="0.0.0.0", port=5000)
     else:
         app.run(host="0.0.0.0", debug=True)
+
+
+if __name__ == "__main__":
+    main()

@@ -32,9 +32,16 @@ pipreqs ./ --force
 ## 同步数据库变更
 
 ```commandline
+flask db init
 export FLASK_APP=manage.py
 flask db migrate -m 'change'
 flask db upgrade
+```
+
+## gunicorn启动
+
+```bazaar
+gunicorn --config gunicorn.conf.py app:app
 ```
 
 ## 学习文档

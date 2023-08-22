@@ -82,24 +82,26 @@ class PersonalTemplate(Resource):
         current_username = get_jwt_identity()
         current_user = User.query.filter_by(username=current_username).first()
         name = uuid.uuid4()
-        new_tem = TemplatePersonal(
-            name=name,
-            author=current_username,
-            prompt=body["prompt"],
-            n_prompt=body["n_prompt"],
-            size=body["size"],
-            scale=body["scale"],
-            sampler=body["sampler"],
-            step=body["step"],
-            images=body["images"],
-            min_imgbb_url=image_list[0],
-            imgbb_url=image_list[0],
-        )
+
         try:
+            new_tem = TemplatePersonal(
+                name=name,
+                author=current_username,
+                prompt=body["prompt"],
+                n_prompt=body["n_prompt"],
+                size=body["size"],
+                scale=body["scale"],
+                sampler=body["sampler"],
+                step=body["step"],
+                images=body["images"],
+                min_imgbb_url=image_list[0],
+                imgbb_url=image_list[0],
+            )
             db.session.add(new_tem)
-            current_user.add_template(name)
             db.session.commit()
-            return {"code": 200, "msg": "发布成功", "data": {"add": new_tem.to_json()}}, 200
+            current_user.add_template(name)
+            new_tem_json = new_tem.to_json()
+            return {"code": 200, "msg": "发布成功", "data": {"add": new_tem_json}}, 200
         except Exception as e:
             db.session.rollback()
             logger.error(e)
